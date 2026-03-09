@@ -1,4 +1,4 @@
-import test, { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices } from '@playwright/test';
 
 /**
  * Read environment variables from file.
@@ -19,13 +19,14 @@ export default defineConfig({
 
   testDir: './tests',
   /* Run tests in files in parallel */
-  fullyParallel: process.env.CI ? true : false,
+  fullyParallel: false,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Set retry */
   retries: process.env.CI ? 3 : 2,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 6 : 4,
+  workers: process.env.CI ? 10 : 4,
+  maxFailures: process.env.CI ? 5 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
     ['html'],
