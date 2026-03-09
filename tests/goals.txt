@@ -20,6 +20,6 @@ Screen capture for fail tests + video recording for tests  --> DONE
 
 Mobile emulation --> DONE
 
-Github action integration
+Github action integration --> 
 
 Jenkins integration
