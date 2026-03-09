@@ -48,7 +48,6 @@ for (const testData of wholeDataSet[testCaseTitleTC01A]) {
 
     await test.step('Step #7: Verify order is placed successfully', async () => {
       await orderStatusPage.verifyOrderIsConfirmed(billingInfo);
-
     });
   });
 }

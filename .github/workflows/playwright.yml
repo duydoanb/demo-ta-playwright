@@ -8,6 +8,7 @@ env:
     BASE_URL: ${{ vars.BASE_URL }}
     VALID_USERNAME: ${{ secrets.VALID_USERNAME }}
     VALID_PASSWORD: ${{ secrets.VALID_PASSWORD }}
+    CI: true
 jobs:
     test-all:
         timeout-minutes: 60
