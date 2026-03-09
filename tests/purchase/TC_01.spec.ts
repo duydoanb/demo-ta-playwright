@@ -9,6 +9,8 @@ import { TestDataUtils } from '../../utils/testDataLoader';
 import { BillingInfo } from '../../data-objects/billingInfo,';
 import { MenuTab } from '../../data-objects/dataEnums';
 
+test.describe.configure({ mode: 'serial' });
+
 const wholeDataSet: Record<string, Record<string, any>[]> = TestDataUtils.loadFullDataSet(__filename)
 
 const testCaseTitleTC01A = 'TC 01A: Verify users can buy an item successfully';

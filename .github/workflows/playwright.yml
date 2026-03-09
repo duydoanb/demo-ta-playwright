@@ -46,6 +46,7 @@ jobs:
                   retention-days: 30
 
             - name: Generate Allure Report
+              if: ${{ !cancelled() }}
               run: npx allure generate allure-results -o allure-report
 
             - name: Upload Allure Report

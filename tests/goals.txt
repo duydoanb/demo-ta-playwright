@@ -22,4 +22,4 @@ Mobile emulation --> DONE
 
 Github action integration --> DONE
 
-Jenkins integration
+Jenkins integration --> ING

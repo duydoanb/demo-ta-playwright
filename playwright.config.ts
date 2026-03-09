@@ -23,21 +23,26 @@ export default defineConfig({
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Set retry */
-  retries: process.env.CI ? 3 : 2,
+  retries: process.env.CI ? 2 : 1,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 10 : 4,
+  workers: process.env.CI ? 3 : 2,
   maxFailures: process.env.CI ? 5 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
+    ['blob'],
     ['html'],
     ['list'],
     ['allure-playwright', { detail: true, outputFolder: 'allure-results', suiteTitle: true }],
     ['junit', { outputFile: 'test-results/junit-results.xml' }]
   ],
+  preserveOutput: 'failures-only',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
     baseURL: process.env.BASE_URL!,
+
+    actionTimeout: 10 * 1000,
+    navigationTimeout: 20 * 1000,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-all-retries',
@@ -65,7 +70,6 @@ export default defineConfig({
     //   dependencies: ['setup'],
     //   teardown: 'teardown',
     // },
-
     // {
     //   name: 'webkit',
     //   use: { ...devices['Desktop Safari'] },
