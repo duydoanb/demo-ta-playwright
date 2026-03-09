@@ -1,0 +1,25 @@
+Apply environment variables --> DONE
+
+Apply fixtures (TestNG annotation) --> DONE
+    @BeforeSuite
+    @BeforeClass
+    @BeforeMethod
+    @AfterMethod
+    @AfterClass
+    @AfterSuite
+
+Testdata provider for tests --> DONE
+
+Data Objects --> DONE 
+
+data enums --> DONE 
+
+Allure reporter integration --> DONE
+
+Screen capture for fail tests + video recording for tests  --> DONE
+
+Mobile emulation --> DONE
+
+Github action integration
+
+Jenkins integration
