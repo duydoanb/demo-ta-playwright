@@ -9,7 +9,7 @@ env:
     VALID_USERNAME: ${{ secrets.VALID_USERNAME }}
     VALID_PASSWORD: ${{ secrets.VALID_PASSWORD }}
 jobs:
-  test:
+  test-all:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     environment: qa
@@ -19,9 +19,7 @@ jobs:
       with:
         node-version: lts/*
     - name: Install dependencies
-      run: |
-        npm ci
-        npm install -D allure-playwright allure-commandline
+      run: npm ci && npm install -D allure-playwright allure-commandline
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
     - name: Run Playwright tests
