@@ -28,13 +28,9 @@ export default defineConfig({
   workers: process.env.CI ? 3 : 2,
   maxFailures: process.env.CI ? 5 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: [
-    ['blob'],
-    ['html'],
-    ['list'],
-    ['allure-playwright', { detail: true, outputFolder: 'allure-results', suiteTitle: true }],
-    ['junit', { outputFile: 'test-results/junit-results.xml' }]
-  ],
+  reporter: process.env.CI
+    ? [['blob'], ['html'], ['allure-playwright', { detail: true, outputFolder: 'allure-results', suiteTitle: true }]]
+    : [['blob'], ['html'], ['list'], ['allure-playwright', { detail: true, outputFolder: 'allure-results', suiteTitle: true }], ['junit', { outputFile: 'test-results/junit-results.xml' }]],
   preserveOutput: 'failures-only',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
