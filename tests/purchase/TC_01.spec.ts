@@ -9,11 +9,13 @@ import { TestDataUtils } from '../../utils/testDataLoader';
 import { BillingInfo } from '../../data-objects/billingInfo,';
 import { MenuTab } from '../../data-objects/dataEnums';
 
+test.describe.configure({ mode: 'serial' });
+
 const wholeDataSet: Record<string, Record<string, any>[]> = TestDataUtils.loadFullDataSet(__filename)
 
 const testCaseTitleTC01A = 'TC 01A: Verify users can buy an item successfully';
 for (const testData of wholeDataSet[testCaseTitleTC01A]) {
-  test(`${testCaseTitleTC01A} - ${testData.setNo}`, async ({ page, setupAction }) => {
+  test(`${testCaseTitleTC01A} using ${testData.paymentMethod} payment method - ${testData.setNo}`, async ({ page, setupAction }) => {
     const departmentName = 'Car Electronics';
     const homePage = new HomePage(page);
     const checkoutPage = new CheckoutPage(page);
@@ -48,7 +50,6 @@ for (const testData of wholeDataSet[testCaseTitleTC01A]) {
 
     await test.step('Step #7: Verify order is placed successfully', async () => {
       await orderStatusPage.verifyOrderIsConfirmed(billingInfo);
-
     });
   });
 }

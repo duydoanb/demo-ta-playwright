@@ -14,12 +14,16 @@ Data Objects --> DONE
 
 data enums --> DONE 
 
+Reuse auth state --> ING
+
 Allure reporter integration --> DONE
 
 Screen capture for fail tests + video recording for tests  --> DONE
 
 Mobile emulation --> DONE
 
-Github action integration
+Github action integration --> DONE
 
-Jenkins integration
+Test sharding --> ING
+
+Jenkins integration --> ING
