@@ -24,6 +24,6 @@ Mobile emulation --> DONE
 
 Github action integration --> DONE
 
-Test sharding --> ING
+Test sharding --> DONE
 
 Jenkins integration --> ING

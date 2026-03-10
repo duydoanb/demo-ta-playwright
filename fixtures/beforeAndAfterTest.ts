@@ -1,7 +1,8 @@
 import path from 'path';
 import { readFileSync } from 'fs';
-import { test as baseTest, expect as expectBase } from '@playwright/test';
+import { APIRequestContext, test as baseTest, Browser, BrowserContext, expect as expectBase, Page } from '@playwright/test';
 import { HomePage } from '../pages/homePage';
+import { LoginPage } from '../pages/loginPage';
 
 // Define the types for your fixtures
 export type MyFixtures = {
@@ -77,3 +78,31 @@ export const test = baseTest.extend<MyFixtures>({
 });
 
 export const expect = expectBase;
+
+
+export class TestClassSetupAndTearDown {
+    async basicSetup(testClassName: string, browserObject: Browser, performLogin: boolean = true): Promise<Map<string, any>> {
+        let returnedRecord: Map<string, any> = new Map();
+        console.log(`[BEFORE CLASS ${testClassName}]: START...`);
+        const newContext = await browserObject.newContext();
+        const newPage = await newContext.newPage();
+        const homePage = new HomePage(newPage);
+        await homePage.navigateToTestSite();
+        if (performLogin) {
+            await homePage.clickLoginLink();
+            await new LoginPage(newPage).login();
+        }
+        console.log(`[BEFORE CLASS ${testClassName}]: END...`);
+
+        returnedRecord.set('context', newContext);
+        returnedRecord.set('page', newPage);
+        return returnedRecord;
+    }
+
+    async basicTeardown(testClassName: string, browserContextArg: BrowserContext, pageArg: Page) {
+        console.log(`[AFTER CLASS ${testClassName}]: START...`);
+        await pageArg.close();
+        await browserContextArg.close();
+        console.log(`[AFTER CLASS ${testClassName}]: END...`);
+    }
+}

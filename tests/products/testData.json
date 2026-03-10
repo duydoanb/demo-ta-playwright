@@ -1,18 +1,8 @@
 {
-    "TC 04A: Verify users can sort items by price": [
+    "TC 04: Verify users can sort items by price": [
         {
             "setNo": "dataset #1",
             "sortMode": "Sort by price: low to high"
-        },
-        {
-            "setNo": "dataset #2",
-            "sortMode": "Sort by price: low to high"
-        }
-    ],
-    "TC 04B: Verify users can sort items by price": [
-        {
-            "setNo": "dataset #1",
-            "sortMode": "Sort by price: high to low"
         },
         {
             "setNo": "dataset #2",

@@ -5,10 +5,11 @@ on:
   pull_request:
     branches: [main, develop]
 env:
-  BASE_URL: ${{ vars.BASE_URL }}
-  VALID_USERNAME: ${{ secrets.VALID_USERNAME }}
-  VALID_PASSWORD: ${{ secrets.VALID_PASSWORD }}
+  BASE_URL: ${{ vars.BASE_URL || 'undefined base_url' }}
+  VALID_USERNAME: ${{ secrets.VALID_USERNAME || 'undefined_username' }}
+  VALID_PASSWORD: ${{ secrets.VALID_PASSWORD || 'undefined_password' }}
   CI: true
+  USE_TEST_SHARDING: true
 jobs:
   playwright-test:
     timeout-minutes: 30
