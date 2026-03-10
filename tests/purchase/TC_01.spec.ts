@@ -27,9 +27,9 @@ test.afterAll(async () => {
   await Constants.TEST_CLASS_SETUP_TEARDOWN_INSTANCE.basicTeardown(testClassName, context, page);
 });
 
-const testCaseTitleTC01A = 'TC 01A: Verify users can buy an item successfully';
-for (const testData of wholeDataSet[testCaseTitleTC01A]) {
-  test(`${testCaseTitleTC01A} using ${testData.paymentMethod} payment method - ${testData.setNo}`, async ({ }) => {
+const testCaseTitleTC01 = 'TC 01: Verify users can buy an item successfully';
+for (const testData of wholeDataSet[testCaseTitleTC01]) {
+  test(`${testCaseTitleTC01} using ${testData.paymentMethod} payment method - ${testData.setNo}`, async ({ }) => {
     const departmentName = 'Car Electronics';
     const homePage = new HomePage(page);
     const checkoutPage = new CheckoutPage(page);
