@@ -45,4 +45,9 @@ export class PathUtils {
     static getTestDataFilePathForCurrentTest(fileContext: string, testDataFileName: string = 'testData.json'): string {
         return path.join(this.getParentDirPath(fileContext), testDataFileName);
     }
+
+    static getSimpleTestClassName(fileContext: string): string {
+        const absolutePath = fileContext.startsWith('file://') ? fileURLToPath(fileContext) : fileContext;
+        return path.parse(absolutePath).name.replace(/.spec.*/, "");
+    }
 }

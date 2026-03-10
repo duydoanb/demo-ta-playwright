@@ -1,6 +1,7 @@
 import { Page, Locator } from '@playwright/test';
 import { BasePage } from './basePage';
 import { MenuTab } from '../data-objects/dataEnums';
+import { Constants } from '../utils/constants';
 
 export class LoginPage extends BasePage {
     private readonly usernameTextbox: Locator;
@@ -14,7 +15,7 @@ export class LoginPage extends BasePage {
         this.loginButton = page.getByRole('button', { name: 'Log in' });
     }
 
-    async login(username: string = process.env.VALID_USERNAME!, password: string = process.env.VALID_PASSWORD!,
+    async login(username: string = Constants.VALID_USERNAME, password: string = Constants.VALID_PASSWORD,
         goToHomePage: boolean = true): Promise<void> {
         await this.usernameTextbox.fill(username);
         await this.passwordTextBox.fill(password);
