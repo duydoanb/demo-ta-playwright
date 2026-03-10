@@ -1,5 +1,5 @@
 {
-    "TC 01A: Verify users can buy an item successfully": [
+    "TC 01: Verify users can buy an item successfully": [
         {
             "setNo": "dataset #1",
             "productNumber": "1",
