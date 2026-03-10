@@ -15,7 +15,7 @@ const wholeDataSet: Record<string, Record<string, any>[]> = TestDataUtils.loadFu
 
 const testCaseTitleTC01A = 'TC 01A: Verify users can buy an item successfully';
 for (const testData of wholeDataSet[testCaseTitleTC01A]) {
-  test(`${testCaseTitleTC01A} - ${testData.setNo}`, async ({ page, setupAction }) => {
+  test(`${testCaseTitleTC01A} using ${testData.paymentMethod} payment method - ${testData.setNo}`, async ({ page, setupAction }) => {
     const departmentName = 'Car Electronics';
     const homePage = new HomePage(page);
     const checkoutPage = new CheckoutPage(page);

@@ -66,20 +66,19 @@ jobs:
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: blob-report-${{ matrix.shardIndex }}
+          name: blob-report-shard-${{ matrix.shardIndex }}
           path: blob-report
-          retention-days: 3
+          retention-days: 1
 
       - name: Upload Allure results to GitHub Actions Artifacts
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: allure-results-${{ matrix.shardIndex }}
+          name: allure-results-shard-${{ matrix.shardIndex }}
           path: allure-results/
-          retention-days: 3
+          retention-days: 1
 
   merge-reports:
-    # Merge reports after playwright-tests, even if some shards have failed
     if: ${{ !cancelled() }}
     needs: [playwright-test]
 
@@ -97,7 +96,7 @@ jobs:
         uses: actions/download-artifact@v5
         with:
           path: all-blob-reports
-          pattern: blob-report-*
+          pattern: blob-report-shard-*
           merge-multiple: true
 
       - name: Merge into HTML Report
@@ -113,12 +112,12 @@ jobs:
       - name: Download Allure Results
         uses: actions/download-artifact@v4
         with:
-          pattern: allure-results-*
+          pattern: allure-results-shard-*
           path: merged-allure-results/
           merge-multiple: true
 
       - name: Generate Allure Report
-        run: npx allure generate merged-allure-results --clean -o allure-report
+        run: npx allure generate merged-allure-results -o allure-report
 
       - name: Upload Allure report
         uses: actions/upload-artifact@v4
