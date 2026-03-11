@@ -6,6 +6,7 @@ import { defineConfig, devices } from '@playwright/test';
  */
 import dotenv from 'dotenv';
 import path from 'path';
+import { Constants } from './utils/constants';
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 /**
@@ -53,11 +54,15 @@ export default defineConfig({
   /* Configure projects for major browsers */
   projects: [
     { name: 'setup', testMatch: /suite.setup\.ts/ },
+    { name: 'setup authentication', testMatch: /test-setup\/auth.setup\.ts/ },
     { name: 'teardown', testMatch: /suite.teardown\.ts/ },
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-      dependencies: ['setup'],
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: Constants.TEMP_LOGIN_STATE_FILE_PATH,
+      },
+      dependencies: ['setup', 'setup authentication'],
       teardown: 'teardown',
     },
     // {

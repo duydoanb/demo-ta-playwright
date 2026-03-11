@@ -12,9 +12,11 @@ Testdata provider for tests --> DONE
 
 Data Objects --> DONE 
 
-data enums --> DONE 
+data enums --> DONE
 
-Reuse auth state --> ING
+Do basic setup before each test class to save time --> DONE
+
+Reuse auth state --> DONE
 
 Allure reporter integration --> DONE
 
