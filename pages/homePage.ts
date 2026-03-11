@@ -14,4 +14,9 @@ export class HomePage extends BasePage {
         await this.page.waitForLoadState('networkidle');
     }
 
+    async isLoginLinkVisible(): Promise<boolean> {
+        await this.page.waitForLoadState('networkidle');
+        return await this.loginLink.isVisible() && await this.loginLink.isEnabled();
+    }
+
 }

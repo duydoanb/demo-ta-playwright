@@ -23,6 +23,7 @@ export class LoginPage extends BasePage {
 
         if (goToHomePage) {
             await this.clickMenuTab(MenuTab.HOME);
+            await this.page.waitForLoadState('networkidle');
         }
     }
 

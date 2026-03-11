@@ -16,8 +16,9 @@ const testClassName = PathUtils.getSimpleTestClassName(__filename);
 let context: BrowserContext;
 let page: Page;
 
+// Purchase flow is sensitive, better keep it 1 thread at a time!
+test.describe.configure({ mode: 'serial' });
 test.beforeAll(async ({ browser }) => {
-  console.log(__filename);
   const testArguments: Map<string, any> = await Constants.TEST_CLASS_SETUP_TEARDOWN_INSTANCE.basicSetup(testClassName, browser);
   context = testArguments.get('context');
   page = testArguments.get('page');

@@ -13,8 +13,7 @@ let context: BrowserContext;
 let page: Page;
 
 test.beforeAll(async ({ browser }) => {
-  console.log(__filename);
-  const testArguments: Map<string, any> = await Constants.TEST_CLASS_SETUP_TEARDOWN_INSTANCE.basicSetup(testClassName, browser, false);
+  const testArguments: Map<string, any> = await Constants.TEST_CLASS_SETUP_TEARDOWN_INSTANCE.basicSetup(testClassName, browser);
   context = testArguments.get('context');
   page = testArguments.get('page');
 });
@@ -46,8 +45,7 @@ for (const testData of wholeDataSet[testCaseTitleTC04]) {
 
     await test.step(`Step #4: Verify that all products are sorts correctly`, async () => {
       const actualDisplayedPrices = await productPage.getAllDisplayedProductsOriginalPrices();
-      const expectedSortedPrices = await createSortedPricesList(actualDisplayedPrices, sortMode)
-      expect(actualDisplayedPrices).toEqual(expectedSortedPrices);
+      expect(actualDisplayedPrices).toEqual(await createSortedPricesList(actualDisplayedPrices, sortMode));
     });
   });
 }

@@ -1,7 +1,7 @@
 import { test, expect } from '../../fixtures/beforeAndAfterTest';
 import { MyAccountPage } from '../../pages/myAccountPage';
 
-test('TC 06: Verify orders appear in order history', async ({ page, basicSetupAction }) => {
+test('TC 08: Verify orders appear in order history', async ({ page, basicSetupAction }) => {
   const myAccountPage = new MyAccountPage(page);
   let actualOrderIds: number[] = [];
 
