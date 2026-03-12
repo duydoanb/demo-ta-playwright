@@ -2,7 +2,7 @@ import { test, expect } from '../../fixtures/beforeAndAfterTest';
 import { HomePage } from '../../pages/homePage';
 import { ProductPage } from '../../pages/productPage';
 import { TestDataUtils, PathUtils } from '../../utils/testDataLoader';
-import { MenuTab, ProductSortMode } from '../../data-objects/dataEnums';
+import { MenuTab, ProductSortMode, ProductViewMode } from '../../data-objects/dataEnums';
 import { BrowserContext, Page } from '@playwright/test';
 import { Constants } from '../../utils/constants';
 
@@ -34,8 +34,7 @@ for (const testData of wholeDataSet[testCaseTitleTC04]) {
     });
 
     await test.step('Step #2: Swith to list view mode', async () => {
-      await productPage.switchToGridViewMode();
-      await productPage.switchToListViewMode();
+      await productPage.switchToProductViewMode(ProductViewMode.LIST);
     });
 
     await test.step(`Step #3: Sort all products (${sortMode.getFullName()})`, async () => {

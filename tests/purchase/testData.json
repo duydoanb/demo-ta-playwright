@@ -2,7 +2,6 @@
     "TC 01: Verify users can buy an item successfully": [
         {
             "setNo": "dataset #1",
-            "productNumber": "1",
             "firstName": "John",
             "lastName": "Doe",
             "companyName": "Acme Inc",
@@ -16,7 +15,6 @@
         },
         {
             "setNo": "dataset #2",
-            "productNumber": "2",
             "firstName": "Jane",
             "lastName": "Doe",
             "companyName": "Acme Inc",
@@ -30,7 +28,6 @@
         },
         {
             "setNo": "dataset #3",
-            "productNumber": "3",
             "firstName": "Jane",
             "lastName": "of Arc",
             "companyName": "AGEST Inc",
@@ -41,6 +38,21 @@
             "phoneNumber": "2123411511",
             "email": "jane.ofArc@example.com",
             "paymentMethod": "Check payments"
+        }
+    ],
+    "TC 02: Verify users can buy multiple items successfully": [
+        {
+            "setNo": "dataset #1",
+            "firstName": "John",
+            "lastName": "Doe",
+            "companyName": "Acme Inc",
+            "address1": "123 Main Street",
+            "address2": "Apt 1",
+            "city": "San Francisco",
+            "postCode": "94105",
+            "phoneNumber": "4155551212",
+            "email": "john.doe@example.com",
+            "paymentMethod": "Direct bank transfer"
         }
     ]
 }

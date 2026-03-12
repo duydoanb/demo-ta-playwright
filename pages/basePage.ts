@@ -48,6 +48,8 @@ export abstract class BasePage {
     }
 
     async clickMyCartLink(): Promise<void> {
+        await this.cartLink.scrollIntoViewIfNeeded();
+        await this.cartLink.hover();
         await this.cartLink.click();
         await this.page.waitForLoadState('networkidle');
     }
