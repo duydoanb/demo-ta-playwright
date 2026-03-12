@@ -16,6 +16,7 @@ export class ProductPage extends BasePage {
     private readonly dynamicProductTitleLink: Locator;
     private readonly dynamicProductCurrentPriceText: Locator;
     private readonly dynamicAddToCartButton: Locator;
+    private readonly dynamicAddingProductAnimationFrame: Locator;
 
     // General locator that matches multiple elements
     private readonly productPriceField: Locator;
@@ -33,6 +34,8 @@ export class ProductPage extends BasePage {
         this.dynamicProductTitleLink = page.locator("xpath=(//div[@class='text-center product-details']/h2[@class='product-title']/a)");
         this.dynamicAddToCartButton = page.locator(`xpath=(//div[@class='text-center product-details']/a[contains(@href,'add-to-cart')])`);
         this.dynamicProductCurrentPriceText = page.locator("xpath=(//div[@class='text-center product-details']/span[@class='price']/*[local-name()='span' or local-name()='ins']//bdi)");
+        this.dynamicAddingProductAnimationFrame = page.locator("xpath=//div[contains(@class,'content-product adding-to-cart')]");
+
         this.productPriceField = page.locator("xpath=//div[@class='content-product ']//span[@class='price']");
     }
 
@@ -93,6 +96,7 @@ export class ProductPage extends BasePage {
         await _addToCartBtn.scrollIntoViewIfNeeded();
         await _addToCartBtn.click({ timeout: 3000 });
         await this.waitForProductsResultsToLoad(3000);
+        await expect(this.dynamicAddingProductAnimationFrame).toBeHidden();
     }
 
     async getProductOriginalPrice(productPriceLocator: Locator): Promise<number> {

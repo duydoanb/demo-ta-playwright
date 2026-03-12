@@ -2,6 +2,36 @@
     "TC 01: Verify users can buy an item successfully": [
         {
             "setNo": "dataset #1",
+            "firstName": "Jane",
+            "lastName": "of Arc",
+            "companyName": "AGEST Inc",
+            "address1": "987 LE DUAN",
+            "address2": "Apt 21",
+            "city": "San Joseria",
+            "postCode": "94105",
+            "phoneNumber": "2123411511",
+            "email": "jane.ofArc@example.com",
+            "paymentMethod": "Check payments"
+        }
+    ],
+    "TC 02: Verify users can buy multiple items successfully": [
+        {
+            "setNo": "dataset #1",
+            "firstName": "John",
+            "lastName": "Doe",
+            "companyName": "Acme Inc",
+            "address1": "123 Main Street",
+            "address2": "Apt 1",
+            "city": "San Francisco",
+            "postCode": "94105",
+            "phoneNumber": "4155551212",
+            "email": "john.doe@example.com",
+            "paymentMethod": "Direct bank transfer"
+        }
+    ],
+    "TC 03: Verify users can buy an item using different payment methods (all payment methods)": [
+        {
+            "setNo": "dataset #1",
             "firstName": "John",
             "lastName": "Doe",
             "companyName": "Acme Inc",
@@ -38,21 +68,6 @@
             "phoneNumber": "2123411511",
             "email": "jane.ofArc@example.com",
             "paymentMethod": "Check payments"
-        }
-    ],
-    "TC 02: Verify users can buy multiple items successfully": [
-        {
-            "setNo": "dataset #1",
-            "firstName": "John",
-            "lastName": "Doe",
-            "companyName": "Acme Inc",
-            "address1": "123 Main Street",
-            "address2": "Apt 1",
-            "city": "San Francisco",
-            "postCode": "94105",
-            "phoneNumber": "4155551212",
-            "email": "john.doe@example.com",
-            "paymentMethod": "Direct bank transfer"
         }
     ]
 }
