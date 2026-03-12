@@ -63,3 +63,45 @@ export class MenuTab {
         return this.fullName;
     }
 }
+
+export class ProductViewMode {
+    static readonly GRID = new ProductViewMode('grid');
+    static readonly LIST = new ProductViewMode('list');
+
+    private constructor(
+        private readonly fullName: string,
+    ) { }
+
+    static fromName(name: string): ProductViewMode {
+        return Object.values(this).find(
+            (mode) => mode instanceof ProductViewMode && mode.fullName.toUpperCase() === name.toUpperCase()
+        );
+    }
+
+    getFullName(): string {
+        return this.fullName;
+    }
+}
+
+export class ProductShowLimit {
+    static readonly 1_2 = new ProductShowLimit('12');
+    static readonly 2_4 = new ProductShowLimit('24');
+    static readonly 3_6 = new ProductShowLimit('36');
+    static readonly All = new ProductShowLimit('All');
+
+    private constructor(
+        private readonly fullName: string,
+    ) { }
+
+    static fromName(name: string): ProductShowLimit {
+        return Object.values(this).find(
+            (limit) => limit instanceof ProductShowLimit && limit.fullName.toUpperCase() === name.toUpperCase()
+        );
+    }
+
+    getFullName(): string {
+        return this.fullName;
+    }
+
+    toString(): string { return this.getFullName(); }
+}

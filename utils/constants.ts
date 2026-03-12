@@ -20,7 +20,7 @@ export class Constants {
         this._validPassword = process.env.VALID_PASSWORD ?? "undefined password";
         this._testClassSetupTeardownInstance = new TestClassSetupAndTearDown();
         this._temp_login_state_file_path = ".temp-storage-state-data/.auth/user.json";
-        this._auth_data_lifetime_threshold = 1 * 60 * 1000; // Maximum is 30 * 24 hours, current is 1 hour
+        this._auth_data_lifetime_threshold = 2 * 60 * 60; // Maximum is 30 * 24 hours, current is 2 hours
         this._initialized = true;
     }
 

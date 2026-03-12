@@ -1,6 +1,6 @@
 import { Page, Locator } from '@playwright/test';
 import { BasePage } from './basePage';
-import { BillingInfo } from '../data-objects/billingInfo,';
+import { BillingInfo } from '../data-objects/billingInfo';
 
 export class CheckoutPage extends BasePage {
     private readonly placeOrderButton: Locator;

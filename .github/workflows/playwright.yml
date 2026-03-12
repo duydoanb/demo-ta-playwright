@@ -10,6 +10,7 @@ env:
   VALID_PASSWORD: ${{ secrets.VALID_PASSWORD || 'undefined_password' }}
   CI: true
   USE_TEST_SHARDING: true
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 jobs:
   playwright-test:
     timeout-minutes: 30

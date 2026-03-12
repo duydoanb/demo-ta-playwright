@@ -14,7 +14,8 @@ setup('Authenticate once for all tests', async ({ page }) => {
     await setup.step('Step #1: Check if the user.json exists', async () => {
         if (!fs.existsSync(authDataFilePath)) {
             doesAuthFileExist = false;
-            console.log(`>>> Could not find the auth data file at ${authDataFilePath}!\nNeed to generate a new auth data file!`);
+            console.log(`>>> Could not find the auth data file at ${authDataFilePath}!`);
+            console.log(">>> Need to generate a new auth data file!");
         } else {
             console.log(`>>> Found the auth data file at ${authDataFilePath}!`);
         }
@@ -31,6 +32,7 @@ setup('Authenticate once for all tests', async ({ page }) => {
                         const expiredTimestamp = cookies['expires'];
                         const authDataGenerationTimeStamp = expiredTimestamp - 30 * 24 * 60 * 60; // cookies lifetime = 30 days
                         const currentTimestamp: number = Math.floor(Date.now() / 1000);
+
                         if (currentTimestamp >= expiredTimestamp) {
                             isAuthDataValid = false;
                             console.log(">>> Auth data is expired");

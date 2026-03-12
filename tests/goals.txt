@@ -12,9 +12,9 @@ Testdata provider for tests --> DONE
 
 Data Objects --> DONE 
 
-data enums --> DONE
+Data enums --> DONE
 
-Do basic setup before each test class to save time --> DONE
+Add basic setup before each test class to save time --> DONE
 
 Reuse auth state --> DONE
 
@@ -23,6 +23,10 @@ Allure reporter integration --> DONE
 Screen capture for fail tests + video recording for tests  --> DONE
 
 Mobile emulation --> DONE
+
+Implement 10 TC --> ING
+
+Use unique credentials for test processes to avoid data race condition/conflict --> TODO 
 
 Github action integration --> DONE
 
