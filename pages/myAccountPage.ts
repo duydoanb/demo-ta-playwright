@@ -1,10 +1,13 @@
 import { Page, Locator } from '@playwright/test';
 import { BasePage } from './basePage';
+import { HomePage } from './homePage';
+import { expect } from '../fixtures/beforeAndAfterTest';
 
 export class MyAccountPage extends BasePage {
     private readonly recentOrdersButton: Locator;
     private readonly addressesButton: Locator;
     private readonly accountDetailsButton: Locator;
+    private readonly logoutButton: Locator;
 
     private readonly nextOrdersPageButton: Locator;
     private readonly previousOrdersPageButton: Locator;
@@ -15,10 +18,17 @@ export class MyAccountPage extends BasePage {
         this.recentOrdersButton = page.getByRole('link', { name: /.*Recent orders/ });
         this.addressesButton = page.getByRole('link', { name: /.*Addresses/ });
         this.accountDetailsButton = page.getByRole('link', { name: /.*Account details/ });
+        this.logoutButton = page.getByRole('link', { name: /.*Logout/ });
 
         this.nextOrdersPageButton = page.getByRole('link', { name: 'NEXT' });
         this.previousOrdersPageButton = page.getByRole('link', { name: 'PREVIOUS' });
         this.orderIdInOrdersTable = page.locator("//tbody/tr/td[1]/a");
+    }
+
+    async logout(): Promise<void> {
+        await this.logoutButton.click();
+        await this.page.waitForLoadState('networkidle');
+        await expect(await new HomePage(this.page).isLoginLinkVisible()).toStrictEqual(true);
     }
 
     async clickRecentOrdersButton(): Promise<void> {
