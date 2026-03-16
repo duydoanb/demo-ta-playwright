@@ -1,3 +1,5 @@
+import { ProductData } from "../data-objects/productData";
+
 export class DataUtils {
 
     static getRandomInt(min: number, max: number): number {
@@ -9,5 +11,14 @@ export class DataUtils {
             stringOrNumber = Number(stringOrNumber);
         }
         return stringOrNumber;
+    }
+
+    static addProductDataIntoProductsDataRecord(currentProductsRecord: Record<string, ProductData>, productDataToAdd: ProductData): void {
+        const _productToAddTitle = productDataToAdd.title;
+        if (currentProductsRecord[_productToAddTitle]) {
+            currentProductsRecord[_productToAddTitle].quantity++;
+        } else {
+            currentProductsRecord[_productToAddTitle] = productDataToAdd;
+        }
     }
 }

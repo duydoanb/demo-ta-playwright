@@ -90,12 +90,11 @@ export class ProductPage extends BasePage {
 
     async clickAddToCartForProductNo(productNumber: number | string): Promise<void> {
         productNumber = DataUtils.convertToNumber(productNumber);
-        console.log(`Adding the product number #${productNumber} to cart!`);
+        console.log(`Adding the product number #${productNumber} - ${await this.getTitleOfProductNo(productNumber)} to cart!`);
         const _addToCartBtn = this.dynamicAddToCartButton.nth(productNumber - 1);
         await expect(_addToCartBtn).toBeVisible({ timeout: 10000 });
         await _addToCartBtn.scrollIntoViewIfNeeded();
         await _addToCartBtn.click({ timeout: 3000 });
-        await this.waitForProductsResultsToLoad(3000);
         await expect(this.dynamicAddingProductAnimationFrame).toBeHidden();
     }
 
