@@ -76,8 +76,8 @@ for (const testData of wholeDataSet[testCaseTitleTC01]) {
     });
 
     await test.step('Step #5: Verify that the product details is correct', async () => {
-      await myCartPage.verifyCartContainsProductsNew(orderedProductsData);
-      totalCartPrice = await myCartPage.getTotalCartPrice();
+      await myCartPage.verifyCartContainsProducts(orderedProductsData);
+      totalCartPrice = await myCartPage.getTotalPriceOfCart();
     });
 
     await test.step('Step #6: Proceed to checkout', async () => {
@@ -127,8 +127,8 @@ test('TC 02: Verify users can buy multiple items successfully', async ({ }) => {
   });
 
   await test.step('Step #4: Verify that all of the products details are correct', async () => {
-    await myCartPage.verifyCartContainsProductsNew(orderedProductsData);
-    totalCartPrice = await myCartPage.getTotalCartPrice();
+    await myCartPage.verifyCartContainsProducts(orderedProductsData);
+    totalCartPrice = DataUtils.getTotalCostOfOrderedProductsAsPriceString(orderedProductsData);
   });
 
   await test.step('Step #5: Proceed to checkout', async () => {
@@ -181,8 +181,8 @@ for (const testData of wholeDataSet[testCaseTitleTC03]) {
     });
 
     await test.step('Step #5: Verify that the product details is correct', async () => {
-      await myCartPage.verifyCartContainsProductsNew(orderedProductsData);
-      totalCartPrice = await myCartPage.getTotalCartPrice();
+      await myCartPage.verifyCartContainsProducts(orderedProductsData);
+      totalCartPrice = await myCartPage.getTotalPriceOfCart();
     });
 
     await test.step('Step #6: Proceed to checkout', async () => {
@@ -226,7 +226,7 @@ test('TC 08: Verify users can clear the cart', async ({ }) => {
   });
 
   await test.step('Step #3: Verify that all of the products details are correct', async () => {
-    await myCartPage.verifyCartContainsProductsNew(orderedProductsData);
+    await myCartPage.verifyCartContainsProducts(orderedProductsData);
   });
 
   await test.step('Step #4: Clear the shopping cart', async () => {
