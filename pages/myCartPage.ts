@@ -4,6 +4,7 @@ import { DataUtils } from '../utils/utilities';
 import { ProductData } from '../data-objects/productData';
 
 export class MyCartPage extends BasePage {
+    private readonly selectedProductsTable: Locator;
     private readonly dynamicProductTitleLink: Locator;
     private readonly dynamicProductPriceText: Locator;
     private readonly dynamicRemoveProductLink: Locator;
@@ -14,8 +15,13 @@ export class MyCartPage extends BasePage {
     private readonly totalPriceText: Locator;
     private readonly proceedToCheckoutButton: Locator;
 
+    private readonly cartIsEmptyHeaderText: Locator;
+    private readonly cartIsEmptyMessageText: Locator;
+    private readonly returnToShopButton: Locator;
+
     constructor(page: Page) {
         super(page);
+        this.selectedProductsTable = page.locator("xpath=//div[@class='table-responsive']//table");
         this.proceedToCheckoutButton = page.getByRole('link', { name: 'Proceed to checkout' });
         this.dynamicProductTitleLink = page.locator("xpath=//div[@class='table-responsive']//tbody/tr/td[@class='product-details']//a[@class='product-title']");
         this.dynamicProductPriceText = page.locator("xpath=//div[@class='table-responsive']//tbody/tr/td[@class='product-price']//bdi");
@@ -25,6 +31,10 @@ export class MyCartPage extends BasePage {
 
         this.totalPriceText = page.locator("xpath=//td[@data-title='Total']//bdi");
         this.dynamicRemoveProductLink = page.locator("xpath=//div[@class='table-responsive']//tbody/tr/td[@class='product-details']//a[@title='Remove this item']");
+
+        this.cartIsEmptyHeaderText = page.getByRole('heading', { name: "YOUR SHOPPING CART IS EMPTY" });
+        this.cartIsEmptyMessageText = page.getByText("We invite you to get acquainted with an assortment of our shop. Surely you can find something for yourself!");
+        this.returnToShopButton = page.getByRole("link", { name: "RETURN TO SHOP" });
     }
 
     private async refreshPageTillElementVisible(elementLocator: Locator, maxTries: number = 4, expectElementVisible: boolean = true): Promise<void> {
@@ -108,6 +118,13 @@ export class MyCartPage extends BasePage {
                 break;
             }
         }
+    }
+
+    async verifyCartIsEmpty(): Promise<void> {
+        await expect(this.selectedProductsTable).toBeHidden();
+        await expect(this.cartIsEmptyHeaderText).toBeVisible();
+        await expect(this.cartIsEmptyMessageText).toBeVisible();
+        await expect(this.returnToShopButton).toBeVisible();
     }
 
 }

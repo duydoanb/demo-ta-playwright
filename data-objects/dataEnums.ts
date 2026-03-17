@@ -83,6 +83,25 @@ export class ProductViewMode {
     }
 }
 
+export class ProductDepartment {
+    static readonly CAR_ELECTRONICS = new ProductDepartment('Car Electronics');
+    static readonly WATCHES = new ProductDepartment('w');
+
+    private constructor(
+        private readonly fullName: string,
+    ) { }
+
+    static fromName(name: string): ProductDepartment {
+        return Object.values(this).find(
+            (department) => department instanceof ProductDepartment && department.fullName.toUpperCase() === name.toUpperCase()
+        );
+    }
+
+    getFullName(): string {
+        return this.fullName;
+    }
+}
+
 export class ProductShowLimit {
     static readonly 1_2 = new ProductShowLimit('12');
     static readonly 2_4 = new ProductShowLimit('24');
