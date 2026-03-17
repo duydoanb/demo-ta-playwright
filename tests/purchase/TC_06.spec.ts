@@ -49,8 +49,8 @@ test('TC 06: Verify users try to buy an item without logging in (As a guest)', a
   });
 
   await test.step('Step #5: Verify that the product details is correct', async () => {
-    await myCartPage.verifyCartContainsProductsNew(orderedProductsData);
-    totalCartPrice = await myCartPage.getTotalCartPrice();
+    await myCartPage.verifyCartContainsProducts(orderedProductsData);
+    totalCartPrice = await myCartPage.getTotalPriceOfCart();
   });
 
   await test.step('Step #6: Proceed to checkout', async () => {
