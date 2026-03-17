@@ -38,7 +38,7 @@ export default defineConfig({
     /* Base URL to use in actions like `await page.goto('')`. */
     baseURL: process.env.BASE_URL!,
 
-    actionTimeout: 10 * 1000,
+    actionTimeout: 7 * 1000,
     navigationTimeout: 20 * 1000,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
@@ -47,35 +47,36 @@ export default defineConfig({
     video: 'retain-on-failure',
 
     launchOptions: {
-      slowMo: 50,
+      slowMo: process.env.CI ? 0 : 100,
     }
   },
 
   /* Configure projects for major browsers */
   projects: [
-    { name: 'setup', testMatch: /suite.setup\.ts/ },
     { name: 'setup authentication', testMatch: /test-setup\/auth.setup\.ts/ },
-    { name: 'teardown', testMatch: /suite.teardown\.ts/ },
     {
       name: 'chromium',
       use: {
         ...devices['Desktop Chrome'],
         storageState: Constants.TEMP_LOGIN_STATE_FILE_PATH,
       },
-      dependencies: ['setup', 'setup authentication'],
-      teardown: 'teardown',
+      dependencies: ['setup authentication'],
     },
     // {
     //   name: 'firefox',
-    //   use: { ...devices['Desktop Firefox'] },
-    //   dependencies: ['setup'],
-    //   teardown: 'teardown',
+    //   use: {
+    //     ...devices['Desktop Firefox'],
+    //     storageState: Constants.TEMP_LOGIN_STATE_FILE_PATH,
+    //   },
+    //   dependencies: ['setup authentication'],
     // },
     // {
     //   name: 'webkit',
-    //   use: { ...devices['Desktop Safari'] },
-    //   dependencies: ['setup'],
-    //   teardown: 'teardown',
+    //   use: {
+    //     ...devices['Desktop Safari'],
+    //     storageState: Constants.TEMP_LOGIN_STATE_FILE_PATH,
+    //   },
+    //   dependencies: ['setup authentication'],
     // },
 
     /* Test against mobile viewports. */
@@ -91,15 +92,21 @@ export default defineConfig({
     /* Test against branded browsers. */
     // {
     //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    //   dependencies: ['setup'],
-    //   teardown: 'teardown',
+    //   use: {
+    //     ...devices['Desktop Edge'],
+    //     storageState: Constants.TEMP_LOGIN_STATE_FILE_PATH,
+    //     channel: 'msedge'
+    //   },
+    //   dependencies: ['setup authentication'],
     // },
     // {
     //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    //   dependencies: ['setup'],
-    //   teardown: 'teardown',
+    //   use: {
+    //     ...devices['Desktop Chrome'],
+    //     storageState: Constants.TEMP_LOGIN_STATE_FILE_PATH,
+    //     channel: 'chrome'
+    //   },
+    //   dependencies: ['setup authentication'],
     // },
   ],
 
