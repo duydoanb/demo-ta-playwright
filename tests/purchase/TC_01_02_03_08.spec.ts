@@ -6,7 +6,7 @@ import { CheckoutPage } from '../../pages/checkoutPage';
 import { OrderStatusPage } from '../../pages/orderStatusPage';
 import { PathUtils, TestDataUtils } from '../../utils/testDataLoader';
 import { BillingInfo } from '../../data-objects/billingInfo';
-import { BillingInfoEnum, MenuTab, ProductViewMode } from '../../data-objects/dataEnums';
+import { BillingInfoEnum, MenuTab, ProductDepartment, ProductViewMode } from '../../data-objects/dataEnums';
 import { BrowserContext, Page } from '@playwright/test';
 import { Constants } from '../../utils/constants';
 import { DataUtils } from '../../utils/utilities';
@@ -18,7 +18,10 @@ const testClassName = PathUtils.getSimpleTestClassName(__filename);
 let context: BrowserContext;
 let page: Page;
 
-// Purchase flow is sensitive, better keep it 1 purchase attemp at a time!
+/***
+    Purchase flow is sensitive, better keep it 1 purchase attemp at a time!
+***/
+
 test.describe.configure({ mode: 'default' });
 test.beforeAll(async ({ browser }) => {
   const testArguments: Map<string, any> = await Constants.TEST_CLASS_SETUP_TEARDOWN_INSTANCE.basicSetup(testClassName, browser);
@@ -39,7 +42,6 @@ test.beforeEach("Empty the shopping cart before each test", async () => {
 const testCaseTitleTC01 = 'TC 01: Verify users can buy an item successfully';
 for (const testData of wholeDataSet[testCaseTitleTC01]) {
   test(`${testCaseTitleTC01} with country as ${testData.country} - ${testData.setNo}`, async ({ }) => {
-    const departmentName = 'Car Electronics';
     const homePage = new HomePage(page);
     const checkoutPage = new CheckoutPage(page);
     const myCartPage = new MyCartPage(page);
@@ -52,7 +54,7 @@ for (const testData of wholeDataSet[testCaseTitleTC01]) {
 
     await test.step('Step #1: Open Car Electronics department', async () => {
       await homePage.clickMenuTab(MenuTab.ABOUT_US);
-      await homePage.selectDepartment(departmentName);
+      await homePage.selectDepartment(ProductDepartment.CAR_ELECTRONICS.getFullName());
     });
 
     await test.step('Step #2: Switch view mode to list', async () => {
@@ -145,7 +147,6 @@ test('TC 02: Verify users can buy multiple items successfully', async ({ }) => {
 const testCaseTitleTC03 = 'TC 03: Verify users can buy an item using different payment methods (all payment methods)';
 for (const testData of wholeDataSet[testCaseTitleTC03]) {
   test(`${testCaseTitleTC03} using ${testData.paymentMethod} payment method - ${testData.setNo}`, async ({ }) => {
-    const departmentName = 'Car Electronics';
     const homePage = new HomePage(page);
     const checkoutPage = new CheckoutPage(page);
     const myCartPage = new MyCartPage(page);
@@ -158,7 +159,7 @@ for (const testData of wholeDataSet[testCaseTitleTC03]) {
 
     await test.step('Step #1: Open Car Electronics department', async () => {
       await homePage.clickMenuTab(MenuTab.ABOUT_US);
-      await homePage.selectDepartment(departmentName);
+      await homePage.selectDepartment(ProductDepartment.CAR_ELECTRONICS.getFullName());
     });
 
     await test.step('Step #2: Switch view mode to list', async () => {
@@ -197,3 +198,42 @@ for (const testData of wholeDataSet[testCaseTitleTC03]) {
     });
   });
 }
+
+test('TC 08: Verify users can clear the cart', async ({ }) => {
+  const homePage = new HomePage(page);
+  const productPage = new ProductPage(page);
+  const myCartPage = new MyCartPage(page);
+  const selectedProductNumbers: number[] = Array.from({ length: 10 }, () => DataUtils.getRandomInt(1, 6));
+  const orderedProductsData: Record<string, ProductData> = {};
+
+  await test.step('Step #1: Open Car Electronics department', async () => {
+    await homePage.clickMenuTab(MenuTab.ABOUT_US);
+    await homePage.selectDepartment(ProductDepartment.CAR_ELECTRONICS.getFullName());
+  });
+
+  await test.step('Step #2: Select multiple products and go to the shopping cart', async () => {
+    for (const productNumber of selectedProductNumbers) {
+      await productPage.clickAddToCartForProductNo(productNumber);
+      const _currentProductData = new ProductData({
+        title: await productPage.getTitleOfProductNo(productNumber),
+        priceString: await productPage.getCurrentPriceOfProductNo(productNumber),
+        quantity: 1
+      });
+      DataUtils.addProductDataIntoProductsDataRecord(orderedProductsData, _currentProductData);
+    }
+
+    await productPage.clickMyCartLink();
+  });
+
+  await test.step('Step #3: Verify that all of the products details are correct', async () => {
+    await myCartPage.verifyCartContainsProductsNew(orderedProductsData);
+  });
+
+  await test.step('Step #4: Clear the shopping cart', async () => {
+    await myCartPage.emptyShoppingCart();
+  });
+
+  await test.step('Step #5: Verify that the shopping cart is empty', async () => {
+    await myCartPage.verifyCartIsEmpty();
+  });
+});
