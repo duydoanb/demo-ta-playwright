@@ -1,9 +1,10 @@
 import { TestClassSetupAndTearDown } from "../fixtures/beforeAndAfterTest";
+import { Credential } from "../data-objects/credential";
 
 export class Constants {
     private static _initialized = false;
-    private static _validUsername: string;
-    private static _validPassword: string;
+    private static _validCredential_1: Credential;
+    private static _validCredential_2: Credential;
     private static _testClassSetupTeardownInstance: TestClassSetupAndTearDown;
     private static _temp_login_state_file_path: string;
     // If the current timestamp exceeds the auth data generation timestamp by this threshold (in seconds) -> generate new auth data
@@ -16,22 +17,28 @@ export class Constants {
             return;
         }
         console.log("Initializing global constants for process!");
-        this._validUsername = process.env.VALID_USERNAME ?? "undefined username";
-        this._validPassword = process.env.VALID_PASSWORD ?? "undefined password";
+        this._validCredential_1 = new Credential({
+            username: process.env.VALID_USERNAME_1 ?? "undefined username 1",
+            password: process.env.VALID_PASSWORD_1 ?? "undefined password"
+        });
+        this._validCredential_2 = new Credential({
+            username: process.env.VALID_USERNAME_2 ?? "undefined username 2",
+            password: process.env.VALID_PASSWORD_2 ?? "undefined password"
+        });
         this._testClassSetupTeardownInstance = new TestClassSetupAndTearDown();
         this._temp_login_state_file_path = ".temp-storage-state-data/.auth/user.json";
         this._auth_data_lifetime_threshold = 2 * 60 * 60; // Maximum is 30 * 24 hours, current is 2 hours
         this._initialized = true;
     }
 
-    static get VALID_USERNAME(): string {
+    static get VALID_CREDENTIAL_1(): Credential {
         this.initializeOnce();
-        return this._validUsername;
+        return this._validCredential_1;
     }
 
-    static get VALID_PASSWORD(): string {
+    static get VALID_CREDENTIAL_2(): Credential {
         this.initializeOnce();
-        return this._validPassword;
+        return this._validCredential_2;
     }
 
     static get TEST_CLASS_SETUP_TEARDOWN_INSTANCE(): TestClassSetupAndTearDown {

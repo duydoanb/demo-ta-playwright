@@ -32,6 +32,12 @@ export class OrderStatusPage extends BasePage {
         this.billingAddressFrame = page.locator("xpath=//address");
     }
 
+    async extractOrderId(): Promise<string> {
+        const id = await this.overViewPanelOrderNumberText.textContent() ?? "undefine order id";
+        console.log(`[INFO] extractOrderId(): order id is ${id}`);
+        return id;
+    }
+
     async verifyGeneralInfoIsCorrect(billingInfo: BillingInfo, totalOrderCost: string, isGuest: boolean = false): Promise<void> {
         await this.page.waitForLoadState('networkidle');
         await expect(this.page).toHaveURL(/.*checkout\/order-received/i, { timeout: 15000 });
