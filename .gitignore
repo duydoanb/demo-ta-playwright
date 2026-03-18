@@ -2,6 +2,7 @@
 /.vscode/
 
 # Playwright
+/.temp-storage-state-data/
 node_modules/
 /test-results/
 /playwright-report/

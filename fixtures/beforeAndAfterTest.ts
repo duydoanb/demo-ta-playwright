@@ -1,32 +1,37 @@
 import path from 'path';
 import { readFileSync } from 'fs';
-import { test as baseTest, expect as expectBase } from '@playwright/test';
+import { APIRequestContext, test as baseTest, Browser, BrowserContext, expect as expectBase, Page } from '@playwright/test';
 import { HomePage } from '../pages/homePage';
+import { LoginPage } from '../pages/loginPage';
 
 // Define the types for your fixtures
 export type MyFixtures = {
-    setupAction: Record<string, any>,
+    basicSetupAction: Record<string, any>,
     singleTestDataProvider: Record<string, any>,
     dataProviderForAllTests: Record<string, Record<string, any>[]>
 };
 
 // Extend the base test
 export const test = baseTest.extend<MyFixtures>({
-    setupAction: async ({ page }, use, testInfo) => {
-        const setupAction = new Map<string, any>();
+    basicSetupAction: async ({ page }, use, testInfo) => {
+        const basicSetupAction = new Map<string, any>();
         const homePage = new HomePage(page);
         const testName = testInfo.title;
 
         // This runs BEFORE each test (Like @BeforeMethod)
-        await test.step('Pre-condition: Navigate to the main page', async () => {
+        await test.step('Pre-condition: Navigate to the main page and login if possible', async () => {
             console.log(`[BEFORE METHOD] [${testName}] [SETUP ACTION]: START...`);
             await homePage.navigateToTestSite();
+            if (await homePage.isLoginLinkVisible()) {
+                await homePage.clickLoginLink();
+                await new LoginPage(page).login();
+            }
             console.log(`[BEFORE METHOD] [${testName}] [SETUP ACTION]: END...`);
         });
 
-        setupAction.set('homePage', homePage);
-        setupAction.set('testInfo', testInfo);
-        await use(setupAction); // The test runs here
+        basicSetupAction.set('homePage', homePage);
+        basicSetupAction.set('testInfo', testInfo);
+        await use(basicSetupAction); // The test runs here
 
         // Logic after use() runs AFTER each test (Like @AfterMethod)
         await test.step('Post-condition: After each test', async () => {
@@ -77,3 +82,31 @@ export const test = baseTest.extend<MyFixtures>({
 });
 
 export const expect = expectBase;
+
+
+export class TestClassSetupAndTearDown {
+    async basicSetup(testClassName: string, browserObject: Browser, performLogin: boolean = false): Promise<Map<string, any>> {
+        const returnedRecord: Map<string, any> = new Map();
+        console.log(`[BEFORE CLASS ${testClassName}]: START...`);
+        const newContext = await browserObject.newContext();
+        const newPage = await newContext.newPage();
+        const homePage = new HomePage(newPage);
+        await homePage.navigateToTestSite();
+        if (performLogin) {
+            await homePage.clickLoginLink();
+            await new LoginPage(newPage).login();
+        }
+        console.log(`[BEFORE CLASS ${testClassName}]: END...`);
+
+        returnedRecord.set('context', newContext);
+        returnedRecord.set('page', newPage);
+        return returnedRecord;
+    }
+
+    async basicTeardown(testClassName: string, browserContextArg: BrowserContext, pageArg: Page) {
+        console.log(`[AFTER CLASS ${testClassName}]: START...`);
+        await pageArg.close();
+        await browserContextArg.close();
+        console.log(`[AFTER CLASS ${testClassName}]: END...`);
+    }
+}

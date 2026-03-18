@@ -1,5 +1,5 @@
 import { Page, Locator } from '@playwright/test';
-import { MenuTab } from '../data-objects/dataEnums';
+import { MenuTab, ProductDepartment } from '../data-objects/dataEnums';
 
 export abstract class BasePage {
     protected readonly page: Page;
@@ -48,6 +48,8 @@ export abstract class BasePage {
     }
 
     async clickMyCartLink(): Promise<void> {
+        await this.cartLink.scrollIntoViewIfNeeded();
+        await this.cartLink.hover();
         await this.cartLink.click();
         await this.page.waitForLoadState('networkidle');
     }
@@ -62,9 +64,9 @@ export abstract class BasePage {
         await this.page.waitForTimeout(250);
     }
 
-    async selectDepartment(departmentName: string): Promise<void> {
+    async selectDepartment(departmentName: ProductDepartment): Promise<void> {
         await this.expandAllDepartmentsMenu();
-        const departmentLink = this.page.getByRole('link', { name: departmentName }).first();
+        const departmentLink = this.page.getByRole('link', { name: departmentName.getFullName() }).first();
         await departmentLink.click();
     }
 }

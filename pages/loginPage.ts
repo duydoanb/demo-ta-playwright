@@ -1,6 +1,8 @@
 import { Page, Locator } from '@playwright/test';
 import { BasePage } from './basePage';
 import { MenuTab } from '../data-objects/dataEnums';
+import { Constants } from '../utils/constants';
+import { Credential } from '../data-objects/credential';
 
 export class LoginPage extends BasePage {
     private readonly usernameTextbox: Locator;
@@ -14,14 +16,14 @@ export class LoginPage extends BasePage {
         this.loginButton = page.getByRole('button', { name: 'Log in' });
     }
 
-    async login(username: string = process.env.VALID_USERNAME!, password: string = process.env.VALID_PASSWORD!,
-        goToHomePage: boolean = true): Promise<void> {
-        await this.usernameTextbox.fill(username);
-        await this.passwordTextBox.fill(password);
+    async login(credential: Credential = Constants.VALID_CREDENTIAL_1, goToHomePage: boolean = true): Promise<void> {
+        await this.usernameTextbox.fill(credential.username);
+        await this.passwordTextBox.fill(credential.password);
         await this.loginButton.click();
 
         if (goToHomePage) {
             await this.clickMenuTab(MenuTab.HOME);
+            await this.page.waitForLoadState('networkidle');
         }
     }
 
