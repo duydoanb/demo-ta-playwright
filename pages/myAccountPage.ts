@@ -159,7 +159,7 @@ export class MyAccountPage extends BasePage {
             }
             checkCount++;
         }
-        console.log('Actual order IDs (as numbers): ' + allOrderIds.join(', '));
+        console.log('[INFO] extractAllOrderIdsFromTheFirstPage(): Actual order IDs (as numbers): ' + allOrderIds.join(', '));
         return allOrderIds;
     }
 

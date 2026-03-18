@@ -14,10 +14,10 @@ setup('Authenticate once for all tests', async ({ page }) => {
     await setup.step('Step #1: Check if the user.json exists', async () => {
         if (!fs.existsSync(authDataFilePath)) {
             doesAuthFileExist = false;
-            console.log(`>>> Could not find the auth data file at ${authDataFilePath}!`);
-            console.log(">>> Need to generate a new auth data file!");
+            console.log(`>>> [INFO] setupAuth(): Could not find the auth data file at ${authDataFilePath}!`);
+            console.log(">>> [INFO] setupAuth(): Need to generate a new auth data file!");
         } else {
-            console.log(`>>> Found the auth data file at ${authDataFilePath}!`);
+            console.log(`>>> [INFO] setupAuth(): Found the auth data file at ${authDataFilePath}!`);
         }
     });
 
@@ -35,34 +35,34 @@ setup('Authenticate once for all tests', async ({ page }) => {
 
                         if (currentTimestamp >= expiredTimestamp) {
                             isAuthDataValid = false;
-                            console.log(">>> Auth data is expired");
+                            console.log(">>> [INFO] setupAuth(): Auth data is expired");
                         } else if (currentTimestamp - authDataGenerationTimeStamp >= Constants.AUTH_DATA_LIFETIME_THRESHOLD) {
                             isAuthDataValid = false;
-                            console.log(">>> Auth data generation time exceeds threshold. Saving new auth data!");
+                            console.log(">>> [INFO] setupAuth(): Auth data generation time exceeds threshold. Saving new auth data!");
                         } else {
-                            console.log(">>> Auth data is still valid!");
+                            console.log(">>> [INFO] setupAuth(): Auth data is still valid!");
                         }
                     }
                 }
             } catch (error) {
                 isAuthDataValid = false;
-                console.log(">>> Failed to validate the lifetime of the auth data!");
+                console.log(">>> [INFO] setupAuth(): Failed to validate the lifetime of the auth data!");
             }
         }
     })
 
     await setup.step('Step #3: Save new auth data if needed', async () => {
         if (!doesAuthFileExist || !isAuthDataValid) {
-            console.log(`>>> Saving new auth data to ${authDataFilePath}`);
+            console.log(`>>> [INFO] setupAuth(): Saving new auth data to ${authDataFilePath}`);
             const homePage = new HomePage(page);
             await homePage.navigateToTestSite();
             await homePage.clickLoginLink();
             await new LoginPage(page).login();
             await page.waitForLoadState('networkidle');
             await page.context().storageState({ path: authDataFilePath });
-            console.log(`>>> Saved new auth data to ${authDataFilePath}\n`);
+            console.log(`>>> [INFO] setupAuth(): Saved new auth data to ${authDataFilePath}\n`);
         } else {
-            console.log(">>> No need to save new auth data!\n");
+            console.log(">>> [INFO] setupAuth(): No need to save new auth data!\n");
         }
     });
 });

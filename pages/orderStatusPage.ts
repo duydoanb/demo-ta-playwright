@@ -34,7 +34,7 @@ export class OrderStatusPage extends BasePage {
 
     async extractOrderId(): Promise<string> {
         const id = await this.overViewPanelOrderNumberText.textContent() ?? "undefine order id";
-        console.log(`[INFO] extractOrderId(): order id is ${id}`);
+        console.log(`[INFO] extractOrderId(): order id is ${id}  <<<<<`);
         return id;
     }
 
@@ -50,6 +50,7 @@ export class OrderStatusPage extends BasePage {
         }
         await expect(this.overViewPanelTotalText).toHaveText(totalOrderCost);
         await expect(this.overViewPanelPaymentMethodText).toHaveText(billingInfo.paymentMethod.getFullName());
+        console.log(`[INFO] verifyGeneralInfoIsCorrect(): PASSED - General info of the order #${actualOrderNumber} is correct!`);
     }
 
     async verifyOrderDetailsTableIsCorrect(orderedProductsData: Record<string, ProductData>): Promise<void> {
@@ -70,15 +71,17 @@ export class OrderStatusPage extends BasePage {
                     break;
                 }
             }
-            foundProduct ? console.log(`The product [${productData.title} x ${productData.quantity} - ${productData.totalCostAsString}] is in the order summary table!`) : console.log(`[ERROR] The product [${productData.title} x ${productData.quantity} - ${productData.totalCostAsString}] is NOT in the order summary table!`)
+            foundProduct ? console.log(`[INFO] verifyOrderDetailsTableIsCorrect(): The product [${productData.title} x ${productData.quantity} - ${productData.totalCostAsString}] is in the order summary table!`) : console.log(`[ERROR] verifyOrderDetailsTableIsCorrect(): The product [${productData.title} x ${productData.quantity} - ${productData.totalCostAsString}] is NOT in the order summary table!`)
             expect(foundProduct).toStrictEqual(true);
         }
+        console.log(`[INFO] verifyOrderDetailsTableIsCorrect(): PASSED - All items in the order confirmed page are correct!`)
     }
 
     async verifyBillingAddressContentIsCorrect(billingInfo: BillingInfo, isGuest: boolean = false): Promise<void> {
         if (isGuest) {
             await expect(this.billingAddressHeader).toBeHidden();
             await expect(this.billingAddressFrame).toBeHidden();
+            console.log("[INFO] verifyBillingAddressContentIsCorrect(): PASSED - Customer billing info is not available as expected!");
         } else {
             await expect(this.billingAddressHeader).toBeVisible();
             await expect(this.billingAddressFrame).toBeVisible();
@@ -86,7 +89,7 @@ export class OrderStatusPage extends BasePage {
             let actualBillingDataTextsAsArray = await this.billingAddressFrame.allInnerTexts();
             // Process again to remove all empty lines
             actualBillingDataTextsAsArray = actualBillingDataTextsAsArray.toString().split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
-            // console.log(`Actual billing address data is:\n${allInnerTextsAsArray.join("\n")}\n`);
+            // console.log(`[INFO] verifyBillingAddressContentIsCorrect(): Actual billing address data is:\n${allInnerTextsAsArray.join("\n")}\n`);
 
             if (billingInfo.country === "Hungary" || billingInfo.country === 'HU') {
                 await expect(actualBillingDataTextsAsArray).toContain(`${billingInfo.lastName} ${billingInfo.firstName}`);
@@ -112,6 +115,7 @@ export class OrderStatusPage extends BasePage {
             } else {
                 await expect(actualBillingDataTextsAsArray.toString()).toContain(billingInfo.stateCode);
             }
+            console.log("[INFO] verifyBillingAddressContentIsCorrect(): PASSED - Customer billing info is correct!");
         }
     }
 
@@ -124,5 +128,6 @@ export class OrderStatusPage extends BasePage {
         await this.verifyOrderDetailsTableIsCorrect(orderedProductsData);
         // Assert the Billing address frame content
         await this.verifyBillingAddressContentIsCorrect(billingInfo, isGuest);
+        console.log("[INFO] verifyOrderIsConfirmed(): PASSED - The order is confirmed!");
     }
 }
