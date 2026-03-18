@@ -1,0 +1,62 @@
+name: Playwright CI/CD Tests
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+env:
+  BASE_URL: ${{ vars.BASE_URL || 'undefined base_url' }}
+  VALID_USERNAME_1: ${{ secrets.VALID_USERNAME_1 || 'undefined_username_1' }}
+  VALID_PASSWORD_1: ${{ secrets.VALID_PASSWORD_1 || 'undefined_password_1' }}
+  VALID_USERNAME_2: ${{ secrets.VALID_USERNAME_2 || 'undefined_username_2' }}
+  VALID_PASSWORD_2: ${{ secrets.VALID_PASSWORD_2 || 'undefined_password_2' }}
+  CI: true
+  USE_TEST_SHARDING: false
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+jobs:
+  playwright-test:
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    environment: qa
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: lts/*
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Run Playwright tests
+        run: npx playwright test
+
+      - name: Upload Playwright Report
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+
+      - name: Upload Allure Results
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: allure-results
+          path: allure-results/
+          retention-days: 30
+
+      - name: Generate Allure Report
+        if: ${{ !cancelled() }}
+        run: npx allure generate allure-results -o allure-report
+
+      - name: Upload Allure Report
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: allure-report
+          path: allure-report/
+          retention-days: 30
