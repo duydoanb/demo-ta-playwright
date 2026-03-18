@@ -104,6 +104,7 @@ export class CheckoutPage extends BasePage {
         }
 
         await this.page.getByRole('radio', { name: billingInfo.paymentMethod.getFullName() }).check();
+        console.log("[INFO] fillBillingDetailsAndPlaceOrder(): Filled all billing info data to the form!");
         await this.clickPlaceOrderBtn();
     }
 

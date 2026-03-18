@@ -54,7 +54,7 @@ for (const testData of wholeDataSet[testCaseTitleTC01]) {
 
     await test.step('Step #1: Open Car Electronics department', async () => {
       await homePage.clickMenuTab(MenuTab.ABOUT_US);
-      await homePage.selectDepartment(ProductDepartment.CAR_ELECTRONICS.getFullName());
+      await homePage.selectDepartment(ProductDepartment.CAR_ELECTRONICS);
     });
 
     await test.step('Step #2: Switch view mode to list', async () => {
@@ -159,7 +159,7 @@ for (const testData of wholeDataSet[testCaseTitleTC03]) {
 
     await test.step('Step #1: Open Car Electronics department', async () => {
       await homePage.clickMenuTab(MenuTab.ABOUT_US);
-      await homePage.selectDepartment(ProductDepartment.CAR_ELECTRONICS.getFullName());
+      await homePage.selectDepartment(ProductDepartment.CAR_ELECTRONICS);
     });
 
     await test.step('Step #2: Switch view mode to list', async () => {
@@ -208,7 +208,7 @@ test('TC 08: Verify users can clear the cart', async ({ }) => {
 
   await test.step('Step #1: Open Car Electronics department', async () => {
     await homePage.clickMenuTab(MenuTab.ABOUT_US);
-    await homePage.selectDepartment(ProductDepartment.CAR_ELECTRONICS.getFullName());
+    await homePage.selectDepartment(ProductDepartment.CAR_ELECTRONICS);
   });
 
   await test.step('Step #2: Select multiple products and go to the shopping cart', async () => {

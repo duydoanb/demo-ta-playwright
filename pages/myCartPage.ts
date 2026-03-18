@@ -114,7 +114,7 @@ export class MyCartPage extends BasePage {
                 }
             }
 
-            foundProduct ? console.log(`The product [${productTitle} - ${productData.priceAsString} - Quantity: ${productData.quantity}] is in the cart!`) : console.log(`[ERROR] The product [${productTitle} - ${productData.priceAsString} - Quantity: ${productData.quantity}] is NOT in the cart!`)
+            foundProduct ? console.log(`[INFO] verifyCartContainsProducts(): The product [${productTitle} - ${productData.priceAsString} - Quantity: ${productData.quantity}] is in the cart!`) : console.log(`[ERROR] verifyCartContainsProducts(): The product [${productTitle} - ${productData.priceAsString} - Quantity: ${productData.quantity}] is NOT in the cart!`)
             expect(foundProduct).toStrictEqual(true);
         }
     }
@@ -205,7 +205,7 @@ export class MyCartPage extends BasePage {
             isRemoveProductLinkVisible = await _firstRemoveProductLink.isVisible();
             // stop if current time is ahead of start time by 2 mins
             if (Math.floor(Date.now() / 1000) - startTimestampInSecs >= 2 * 60) {
-                console.log("Exceeded 2 minutes (Max allowed time for the Empty shopping cart action)!!!\nStop the action!!!");
+                console.log("[WARNING] emptyShoppingCart(): Exceeded 2 minutes (Max allowed time for the Empty shopping cart action)!!!\nStop the action!!!");
                 break;
             }
         }

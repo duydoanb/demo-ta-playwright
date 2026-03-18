@@ -90,7 +90,7 @@ export class ProductPage extends BasePage {
 
     async clickAddToCartForProductNo(productNumber: number | string): Promise<void> {
         productNumber = DataUtils.convertToNumber(productNumber);
-        console.log(`Adding the product number #${productNumber} - ${await this.getTitleOfProductNo(productNumber)} to cart!`);
+        console.log(`[INFO] clickAddToCartForProductNo(): Adding the product number #${productNumber} - ${await this.getTitleOfProductNo(productNumber)} to cart!`);
         const _addToCartBtn = this.dynamicAddToCartButton.nth(productNumber - 1);
         await expect(_addToCartBtn).toBeVisible({ timeout: 10000 });
         await _addToCartBtn.scrollIntoViewIfNeeded();
@@ -116,7 +116,7 @@ export class ProductPage extends BasePage {
         for (const priceLocator of await this.productPriceField.all()) {
             prices.push(await this.getProductOriginalPrice(priceLocator));
         }
-        console.log('All displayed products original prices: ', prices.join(', '));
+        console.log('[INFO] getAllDisplayedProductsOriginalPrices(): All displayed products original prices: ', prices.join(', '));
         return prices;
     }
 

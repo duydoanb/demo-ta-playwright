@@ -49,9 +49,9 @@ test('TC 05: Verify orders appear in order history', async ({ page }) => {
   await test.step('Step #6: Verify the data of the second order is correct', async () => {
     await myAccountPage.clickMyAccountLink();
     await myAccountPage.clickRecentOrdersButton();
-    await myAccountPage.findAndViewOrderDetailsLinkByOrderId(orderId1);
-    await myAccountPage.verifyOrderDetailsTableDataIsCorrect(orderedProductsOfOrder1);
-    expect(await myAccountPage.getOrderSubtotalPriceAsString()).toStrictEqual(DataUtils.getTotalCostOfOrderedProductsAsPriceString(orderedProductsOfOrder1));
+    await myAccountPage.findAndViewOrderDetailsLinkByOrderId(orderId2);
+    await myAccountPage.verifyOrderDetailsTableDataIsCorrect(orderedProductsOfOrder2);
+    expect(await myAccountPage.getOrderSubtotalPriceAsString()).toStrictEqual(DataUtils.getTotalCostOfOrderedProductsAsPriceString(orderedProductsOfOrder2));
   });
 
 });
