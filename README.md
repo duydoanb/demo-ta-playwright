@@ -9,8 +9,9 @@ This project follows a conventional Playwright framework structure with:
 - Page Object Model (POM) under `pages/`
 - Test fixtures and lifecycle hooks under `fixtures/`
 - Data-driven tests using `testData.json` files in each test module
-- Multi-reporter output: HTML, List, JUnit XML, and Allure
-- CI execution via GitHub Actions (`.github/workflows/playwright.yml`)
+- Auth storage state per credential, plus a credential pool to avoid parallel data conflicts
+- Multi-reporter output: HTML, List, JUnit XML, Allure, and blob (for sharded CI)
+- CI execution via GitHub Actions workflows in `.github/workflows/`
 
 ## Tech Stack
 
@@ -18,6 +19,7 @@ This project follows a conventional Playwright framework structure with:
 - TypeScript
 - `dotenv`
 - `allure-playwright`
+- `proper-lockfile` (safe credential leasing across parallel workers)
 
 ## Project Structure
 
@@ -28,16 +30,18 @@ This project follows a conventional Playwright framework structure with:
 |-- tests/                    # Test specs grouped by feature
 |   |-- purchase/
 |   |-- products/
-|   `-- orders/
+|   |-- orders/
+|   `-- test-setup/           # Auth/storage-state setup
 |-- data-objects/             # DTOs / enums used by tests
 |-- utils/                    # Test utilities and data loaders
+|-- .temp-storage-state-data/ # Auth storage + credential usage file
 |-- playwright.config.ts      # Playwright configuration
 `-- .github/workflows/        # CI pipeline
 ```
 
 ## Prerequisites
 
-- Node.js 18+ (recommended)
+- Node.js 20+ (required by package.json engines)
 - npm 9+
 
 ## Installation
@@ -53,10 +57,17 @@ Create/update `.env` in the project root:
 
 ```env
 BASE_URL=https://your-app-url
-# Add any other environment-specific values used by your pages/tests
+VALID_USERNAME_1=your-user
+VALID_PASSWORD_1=your-pass
+VALID_CREDENTIALS=[{"username":"user1","password":"pass1","alias":"user1"}]
+DEBUG_MODE=false
 ```
 
 `playwright.config.ts` reads this file automatically.
+
+Notes:
+- `VALID_CREDENTIALS` is a JSON array used to pre-generate storage states and lease credentials safely in parallel.
+- Set `DEBUG_MODE=true` to disable retries locally.
 
 ## Run Tests
 
@@ -82,6 +93,13 @@ Run on a specific project/browser:
 
 ```bash
 npx playwright test --project=chromium
+```
+
+Run a shard locally (when `USE_TEST_SHARDING=true`):
+
+```bash
+set USE_TEST_SHARDING=true
+npx playwright test --shard=1/4
 ```
 
 Run in headed mode:
@@ -120,6 +138,14 @@ JUnit XML output is generated at:
 test-results/junit-results.xml
 ```
 
+### Blob Report (CI Sharding)
+
+When running in sharded CI, Playwright emits blob reports for merging:
+
+```text
+blob-report/
+```
+
 ## Framework Conventions
 
 - Use page objects for all UI interactions.
@@ -127,6 +153,7 @@ test-results/junit-results.xml
 - Keep test data in module-level `testData.json` files.
 - Use `test.step()` for readable reporting and traceability.
 - Use custom fixtures from `fixtures/beforeAndAfterTest.ts` for common setup.
+- Use credential leasing + storageState for parallel-safe authenticated tests.
 
 ## Data-Driven Pattern
 
@@ -152,7 +179,8 @@ npx playwright show-trace test-results/<trace-file>.zip
 
 GitHub Actions workflow is available at:
 
-- `.github/workflows/playwright.yml`
+- `.github/workflows/playwright-non-sharding.yml` (single job, uploads reports)
+- `.github/workflows/playwright-sharding.yml` (4-way sharding + merged reports)
 
 Typical CI flow:
 
@@ -160,6 +188,8 @@ Typical CI flow:
 2. Install Playwright browsers
 3. Execute tests
 4. Publish test artifacts/reports
+
+Note: The sharding workflow currently targets `main-unused`/`develop-unused` branches in the workflow file. Update branches if you want it to run on `main`/`develop`.
 
 ## Suggested npm Scripts
 
@@ -204,4 +234,8 @@ Allure command not found:
 ```bash
 npx allure --version
 ```
+
+Tests will wait if no free credential available:
+- Ensure `VALID_CREDENTIALS` contains enough users for your parallelism.
+- Verify `.temp-storage-state-data/.auth/credential_usage_status.json` exists and is writable.
 
