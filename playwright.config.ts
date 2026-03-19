@@ -6,7 +6,6 @@ import { defineConfig, devices } from '@playwright/test';
  */
 import dotenv from 'dotenv';
 import path from 'path';
-import { Constants } from './utils/constants';
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 /**
@@ -24,9 +23,9 @@ export default defineConfig({
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Set retry */
-  retries: process.env.CI ? 2 : 1,
+  retries: process.env.CI ? 3 : (process.env.DEBUG_MODE === 'true') ? 0 : 2,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? (process.env.USE_TEST_SHARDING ? 1 : 4) : 3,
+  workers: process.env.CI ? (process.env.USE_TEST_SHARDING === 'true') ? 1 : 6 : 5,
   maxFailures: process.env.CI ? 5 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: process.env.CI
@@ -38,8 +37,8 @@ export default defineConfig({
     /* Base URL to use in actions like `await page.goto('')`. */
     baseURL: process.env.BASE_URL!,
 
-    actionTimeout: 11 * 1000,
-    navigationTimeout: 15 * 1000,
+    actionTimeout: 12 * 1000,
+    navigationTimeout: 20 * 1000,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-all-retries',
@@ -56,26 +55,17 @@ export default defineConfig({
     { name: 'setup authentication', testMatch: /test-setup\/auth.setup\.ts/ },
     {
       name: 'chromium',
-      use: {
-        ...devices['Desktop Chrome'],
-        storageState: Constants.TEMP_LOGIN_STATE_FILE_PATH,
-      },
+      use: { ...devices['Desktop Chrome'] },
       dependencies: ['setup authentication'],
     },
     // {
     //   name: 'firefox',
-    //   use: {
-    //     ...devices['Desktop Firefox'],
-    //     storageState: Constants.TEMP_LOGIN_STATE_FILE_PATH,
-    //   },
+    //   use: { ...devices['Desktop Firefox'], },
     //   dependencies: ['setup authentication'],
     // },
     // {
     //   name: 'webkit',
-    //   use: {
-    //     ...devices['Desktop Safari'],
-    //     storageState: Constants.TEMP_LOGIN_STATE_FILE_PATH,
-    //   },
+    //   use: { ...devices['Desktop Safari'] },
     //   dependencies: ['setup authentication'],
     // },
 
@@ -94,7 +84,6 @@ export default defineConfig({
     //   name: 'Microsoft Edge',
     //   use: {
     //     ...devices['Desktop Edge'],
-    //     storageState: Constants.TEMP_LOGIN_STATE_FILE_PATH,
     //     channel: 'msedge'
     //   },
     //   dependencies: ['setup authentication'],
@@ -103,7 +92,6 @@ export default defineConfig({
     //   name: 'Google Chrome',
     //   use: {
     //     ...devices['Desktop Chrome'],
-    //     storageState: Constants.TEMP_LOGIN_STATE_FILE_PATH,
     //     channel: 'chrome'
     //   },
     //   dependencies: ['setup authentication'],

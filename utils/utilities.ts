@@ -1,12 +1,26 @@
+import { promises as fs } from "fs";
+import { lock } from "proper-lockfile";
 import { Page } from "@playwright/test";
 import { ProductData } from "../data-objects/productData";
 import { HomePage } from "../pages/homePage";
-import { BillingInfoEnum, MenuTab } from "../data-objects/dataEnums";
+import { BillingInfoEnum, CredentialUsageStatus, MenuTab } from "../data-objects/dataEnums";
 import { ProductPage } from "../pages/productPage";
 import { BillingInfo } from "../data-objects/billingInfo";
 import { MyCartPage } from "../pages/myCartPage";
 import { CheckoutPage } from "../pages/checkoutPage";
 import { OrderStatusPage } from "../pages/orderStatusPage";
+import { Constants } from "./constants";
+import path from "path";
+
+const retryOptionsForFileLock = {
+    retries: {
+        retries: 10,           // Number of times to try before giving up
+        factor: 2,             // Exponential backoff factor (wait 2x longer each time)
+        minTimeout: 100,      // Minimum wait time (1 second)
+        maxTimeout: 5000,     // Maximum wait time (10 seconds)
+        randomize: true        // Adds "jitter" so processes don't all retry at the exact same millisecond
+    }
+};
 
 export class DataUtils {
 
@@ -51,9 +65,7 @@ export class ActionUtils {
         this.page = page;
     }
 
-    async completeAnOrderAndReturnOrderId(productsDataToSave: Record<string, ProductData>,
-        noOfPurchaseProduct: number, billingInfo?: BillingInfo): Promise<string> {
-
+    async completeAnOrderAndReturnOrderId(productsDataToSave: Record<string, ProductData>, noOfPurchaseProduct: number, billingInfo?: BillingInfo): Promise<string> {
         billingInfo = billingInfo ?? new BillingInfo(await BillingInfoEnum.US_ADDRESS_1.convertToRecordObject());
         const homePage = new HomePage(this.page);
         const productPage = new ProductPage(this.page);
@@ -82,6 +94,120 @@ export class ActionUtils {
         await checkoutPage.fillBillingDetailsAndPlaceOrder(billingInfo);
         await orderStatusPage.verifyOrderIsConfirmed(billingInfo, DataUtils.getTotalCostOfOrderedProductsAsPriceString(productsDataToSave), productsDataToSave);
         return await orderStatusPage.extractOrderId();
+    }
+
+}
+
+const _sleepAction = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+export async function sleep(timeoutInMicrosecs: number) {
+    await _sleepAction(timeoutInMicrosecs);
+}
+
+export class FileUtils {
+    constructor() { }
+    async ensureJsonFileExists(filePath: string): Promise<void> {
+        try {
+            // Check if the file is accessible
+            await fs.access(filePath);
+        } catch {
+            // If access fails, the file likely doesn't exist; create it with an empty object
+            await fs.writeFile(filePath, JSON.stringify({}, null, 2));
+            console.log(`Created new file at: ${filePath}`);
+        }
+    }
+
+    async loadFreshContentToCredsUsageStatusFile(filePath: string): Promise<void> {
+        await fs.writeFile(filePath, JSON.stringify({}, null, 2));
+        console.log(`Cleared the old content of the file ${filePath}`);
+
+        const credsUsageData: Record<string, Record<string, string>> = {};
+        for (const cred of Constants.ALL_VALID_CREDENTIALS) {
+            credsUsageData[cred.alias] = { 'status': CredentialUsageStatus.FREE.getFullName() }
+        }
+        try {
+            const jsonString = JSON.stringify(credsUsageData, null, 2);
+            await fs.writeFile(filePath, jsonString, 'utf8');
+            console.log("Credentials usage statuses are successfully saved!");
+        } catch (error) {
+            console.error("Error saving data:", error);
+        }
+    }
+
+    async getTempStorageStateJsonPath(userAliasToUse: string): Promise<string> {
+        return path.join(Constants.TEMP_STORAGE_STATE_DIR_PATH, `${userAliasToUse}.json`)
+    }
+
+    async getFreeCredentialToRunTest(): Promise<string> {
+        const filePath: string = path.join(Constants.TEMP_STORAGE_STATE_DIR_PATH, Constants.CREDENTIAL_USAGE_STATUS_FILE_NAME)
+        const defautUser: string = "not-available";
+        let returnUser: string = defautUser;
+
+
+        const startTime: number = Math.floor(Date.now());
+        let currentTime;
+        const retryInterval = 500; // In ms
+        const maxTryCount = (4 * 60 * 1000) / retryInterval;
+        let warningMessToBeDisplayedAtSecondMark = 5;
+        for (let tryCount = 0; tryCount < maxTryCount; tryCount++) {
+            const release = await lock(filePath, retryOptionsForFileLock);
+            try {
+                const content = await fs.readFile(filePath, 'utf8');
+                const usageData: Record<string, Record<string, string>> = JSON.parse(content);
+                for (const [userNo, data] of Object.entries(usageData)) {
+                    if (data.status === CredentialUsageStatus.FREE.getFullName()) {
+                        console.log(`[INFO] getFreeCredentialToRunTest(): ${userNo} is ready to use!`)
+                        returnUser = userNo;
+                        data.status = CredentialUsageStatus.LOCKED.getFullName();
+                        break;
+                    }
+                }
+                // Only re-write the file only if found a free cred
+                if (returnUser !== defautUser) {
+                    const updatedData = { ...usageData };
+                    await fs.writeFile(filePath, JSON.stringify(updatedData, null, 2));
+                    console.log(`[INFO] getFreeCredentialToRunTest(): The file ${Constants.CREDENTIAL_USAGE_STATUS_FILE_NAME} is updated safely!`);
+                }
+            } catch (error) {
+                console.error(`[ERROR] getFreeCredentialToRunTest(): Failed to read and write data to file ${filePath}: `, error);
+            } finally {
+                await release();
+            }
+
+            if (returnUser !== defautUser) {
+                break;
+            } else {
+                currentTime = Math.floor(Date.now());
+                if ((currentTime - startTime) / 1000 > warningMessToBeDisplayedAtSecondMark) {
+                    console.log(`[WARNING] getFreeCredentialToRunTest(): Could not find a free credential to run test after ${(currentTime - startTime) / 1000} seconds!!!`);
+                    warningMessToBeDisplayedAtSecondMark += 5;
+                }
+                await sleep(retryInterval);
+            }
+        }
+
+        return returnUser;
+    }
+
+    async releaseBeingUsedCredential(userAlias: string): Promise<void> {
+        const filePath: string = path.join(Constants.TEMP_STORAGE_STATE_DIR_PATH, Constants.CREDENTIAL_USAGE_STATUS_FILE_NAME);
+        const release = await lock(filePath, retryOptionsForFileLock);
+        try {
+            const content = await fs.readFile(filePath, 'utf8');
+            const usageData: Record<string, Record<string, string>> = JSON.parse(content);
+            for (const [userNo, data] of Object.entries(usageData)) {
+                if (userNo === userAlias) {
+                    data.status = CredentialUsageStatus.FREE.getFullName();
+                    console.log(`[INFO] releaseBeingUsedCredential(): ${userNo} is freed!`)
+                    break;
+                }
+            }
+            await fs.writeFile(filePath, JSON.stringify({ ...usageData }, null, 2));
+            console.log(`[INFO] releaseBeingUsedCredential(): The file ${Constants.CREDENTIAL_USAGE_STATUS_FILE_NAME} is updated safely!`);
+        } catch (error) {
+            console.error(`[ERROR] releaseBeingUsedCredential(): Failed to read and write data to file ${filePath}: `, error);
+        } finally {
+            await release();
+        }
     }
 
 }

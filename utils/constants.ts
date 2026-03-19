@@ -1,12 +1,19 @@
 import { TestClassSetupAndTearDown } from "../fixtures/beforeAndAfterTest";
 import { Credential } from "../data-objects/credential";
+import path from "path";
 
 export class Constants {
     private static _initialized = false;
+    private static _loginURL: string;
+
     private static _validCredential_1: Credential;
-    private static _validCredential_2: Credential;
+    private static _allValidCredentials: Record<string, string>[];
     private static _testClassSetupTeardownInstance: TestClassSetupAndTearDown;
-    private static _temp_login_state_file_path: string;
+
+    private static _temp_login_state_file_path: (userAlias: string) => string;
+    private static _temp_storage_state_data_dir_path: string;
+    private static _credential_usage_status_file_name: string;
+
     // If the current timestamp exceeds the auth data generation timestamp by this threshold (in seconds) -> generate new auth data
     private static _auth_data_lifetime_threshold: number;
 
@@ -17,18 +24,29 @@ export class Constants {
             return;
         }
         console.log("Initializing global constants for process!");
+
+        this._loginURL = `${process.env.BASE_URL}/my-account/`
         this._validCredential_1 = new Credential({
             username: process.env.VALID_USERNAME_1 ?? "undefined username 1",
             password: process.env.VALID_PASSWORD_1 ?? "undefined password"
         });
-        this._validCredential_2 = new Credential({
-            username: process.env.VALID_USERNAME_2 ?? "undefined username 2",
-            password: process.env.VALID_PASSWORD_2 ?? "undefined password"
-        });
+
+        if (process.env.VALID_CREDENTIALS === undefined || process.env.VALID_CREDENTIALS === null) {
+            throw new Error("[FATAL] Please add valid credentials for the site in the env variables as VALID_CREDENTIALS (it must be an json array)!");
+        }
+        this._allValidCredentials = JSON.parse(process.env.VALID_CREDENTIALS);
         this._testClassSetupTeardownInstance = new TestClassSetupAndTearDown();
-        this._temp_login_state_file_path = ".temp-storage-state-data/.auth/user.json";
-        this._auth_data_lifetime_threshold = 2 * 60 * 60; // Maximum is 30 * 24 hours, current is 2 hours
+        this._temp_login_state_file_path = (_userAlias: string): string => `.temp-storage-state-data/.auth/${_userAlias}.json`;
+        this._temp_storage_state_data_dir_path = path.join(process.cwd(), '.temp-storage-state-data', '.auth');
+        this._credential_usage_status_file_name = "credential_usage_status.json";
+
+        this._auth_data_lifetime_threshold = 12 * 60 * 60; // Maximum is 30 * 24 hours, current is 12 hours
         this._initialized = true;
+    }
+
+    static get LOGIN_URL(): string {
+        this.initializeOnce();
+        return this._loginURL;
     }
 
     static get VALID_CREDENTIAL_1(): Credential {
@@ -36,9 +54,9 @@ export class Constants {
         return this._validCredential_1;
     }
 
-    static get VALID_CREDENTIAL_2(): Credential {
+    static get ALL_VALID_CREDENTIALS(): Record<string, string>[] {
         this.initializeOnce();
-        return this._validCredential_2;
+        return this._allValidCredentials;
     }
 
     static get TEST_CLASS_SETUP_TEARDOWN_INSTANCE(): TestClassSetupAndTearDown {
@@ -46,9 +64,19 @@ export class Constants {
         return this._testClassSetupTeardownInstance;
     }
 
-    static get TEMP_LOGIN_STATE_FILE_PATH(): string {
+    static get TEMP_LOGIN_STATE_FILE_PATH(): (userAlias: string) => string {
         this.initializeOnce();
         return this._temp_login_state_file_path;
+    }
+
+    static get TEMP_STORAGE_STATE_DIR_PATH(): string {
+        this.initializeOnce();
+        return this._temp_storage_state_data_dir_path;
+    }
+
+    static get CREDENTIAL_USAGE_STATUS_FILE_NAME(): string {
+        this.initializeOnce();
+        return this._credential_usage_status_file_name;
     }
 
     static get AUTH_DATA_LIFETIME_THRESHOLD(): number {

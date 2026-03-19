@@ -9,7 +9,7 @@ import { ProductPage } from '../../pages/productPage';
 import { DataUtils } from '../../utils/utilities';
 import { ProductData } from '../../data-objects/productData';
 
-// Run this test using a clean context.
+// Run this test using a clean context to avoid logging in.
 test.use({ storageState: { cookies: [], origins: [] } });
 test('TC 06: Verify users try to buy an item without logging in (As a guest)', async ({ page }) => {
   const homePage = new HomePage(page);

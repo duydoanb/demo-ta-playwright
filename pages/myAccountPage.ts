@@ -72,15 +72,15 @@ export class MyAccountPage extends BasePage {
         console.log(`[INFO] findAndViewOrderDetailsLinkByOrderId(): Opening the details page of order #${orderId}`);
 
         while (true) {
+            if ((await this.getCurrentOrderIdsList()).includes(Number(orderId.replace(/[^0-9]/g, "")))) {
+                console.log(`[INFO] findAndViewOrderDetailsLinkByOrderId(): Found the order #${orderId}`);
+                break;
+            }
             if (await this.nextOrdersPageButton.isHidden()) {
                 throw new Error(`[ERROR] findAndViewOrderDetailsLinkByOrderId(): Loop through all pages, the order #${orderId} does not exist!`)
             }
             if (checkCount >= maxPageCheckCount) {
                 throw new Error(`[ERROR] findAndViewOrderDetailsLinkByOrderId(): Failed to find the order #${orderId} after ${maxPageCheckCount} tries!`)
-            }
-            if ((await this.getCurrentOrderIdsList()).includes(Number(orderId.replace(/[^0-9]/g, "")))) {
-                console.log(`[INFO] findAndViewOrderDetailsLinkByOrderId(): Found the order #${orderId}`);
-                break;
             }
             await this.goToNextOrderRecordPage();
             checkCount++;
