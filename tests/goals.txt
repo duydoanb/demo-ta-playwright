@@ -24,9 +24,9 @@ Screen capture for fail tests + video recording for tests  --> DONE
 
 Mobile emulation --> DONE
 
-Implement 10 TC --> ING
+Implement 10 TC --> DONE
 
-Use unique credentials for test processes to avoid data race condition/conflict --> TODO 
+Use unique credentials for test processes to avoid data race condition/conflict --> DONE
 
 Github action integration --> DONE
 
