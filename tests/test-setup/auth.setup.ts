@@ -3,12 +3,14 @@ import fs from 'fs';
 import { test as setup } from '@playwright/test'
 import { HomePage } from '../../pages/homePage';
 import { LoginPage } from '../../pages/loginPage';
+import { MyAccountPage } from '../../pages/myAccountPage';
 import { Constants } from '../../utils/constants';
 import { FileUtils } from '../../utils/utilities';
 import { Credential } from '../../data-objects/credential';
 
 setup.describe.configure({ mode: 'default' });
-setup(`Authenticate once for all credentials`, async ({ page }) => {
+setup(`Authenticate once for all credentials`, async ({ browser, page }) => {
+    setup.slow();
     let stepNum = 1;
     for (const credData of Constants.ALL_VALID_CREDENTIALS) {
         const authDataFilePath = path.join(__dirname, `../../${Constants.TEMP_LOGIN_STATE_FILE_PATH(credData.alias)}`);
@@ -58,11 +60,13 @@ setup(`Authenticate once for all credentials`, async ({ page }) => {
         await setup.step(`Step #${stepNum++}: Save new auth data for ${credData.alias} if needed`, async () => {
             if (!doesAuthFileExist || !isAuthDataValid) {
                 console.log(`>>> [INFO] setupAuth(): Saving new auth data to ${authDataFilePath}`);
-                const homePage = new HomePage(page);
-                await homePage.navigateToTestSite();
-                await homePage.clickLoginLink();
+                // Create a new and clean (incognito-like) session
+                await page.context().close();
+                const newContext = await browser.newContext();
+                page = await newContext.newPage();
+
+                await page.goto(Constants.LOGIN_URL);
                 await new LoginPage(page).login(new Credential({ username: credData.username, password: credData.password }), false);
-                await page.waitForLoadState('networkidle');
                 await page.context().storageState({ path: authDataFilePath });
                 console.log(`>>> [INFO] setupAuth(): Saved new auth data to ${authDataFilePath}\n`);
             } else {

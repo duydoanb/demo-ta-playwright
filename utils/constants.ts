@@ -4,6 +4,8 @@ import path from "path";
 
 export class Constants {
     private static _initialized = false;
+    private static _loginURL: string;
+
     private static _validCredential_1: Credential;
     private static _allValidCredentials: Record<string, string>[];
     private static _testClassSetupTeardownInstance: TestClassSetupAndTearDown;
@@ -22,6 +24,8 @@ export class Constants {
             return;
         }
         console.log("Initializing global constants for process!");
+
+        this._loginURL = `${process.env.BASE_URL}/my-account/`
         this._validCredential_1 = new Credential({
             username: process.env.VALID_USERNAME_1 ?? "undefined username 1",
             password: process.env.VALID_PASSWORD_1 ?? "undefined password"
@@ -38,6 +42,11 @@ export class Constants {
 
         this._auth_data_lifetime_threshold = 12 * 60 * 60; // Maximum is 30 * 24 hours, current is 12 hours
         this._initialized = true;
+    }
+
+    static get LOGIN_URL(): string {
+        this.initializeOnce();
+        return this._loginURL;
     }
 
     static get VALID_CREDENTIAL_1(): Credential {
