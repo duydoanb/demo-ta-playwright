@@ -192,3 +192,24 @@ export class BillingInfoEnum {
     }
 
 }
+
+export class CredentialUsageStatus {
+    static readonly LOCKED = new CredentialUsageStatus('LOCKED');
+    static readonly FREE = new CredentialUsageStatus('FREE');
+
+    private constructor(
+        private readonly fullName: string,
+    ) { }
+
+    static fromName(name: string): CredentialUsageStatus {
+        return Object.values(this).find(
+            (status) => status instanceof CredentialUsageStatus && status.fullName.toUpperCase() === name.toUpperCase()
+        );
+    }
+
+    getFullName(): string {
+        return this.fullName;
+    }
+
+    toString(): string { return this.getFullName(); }
+}

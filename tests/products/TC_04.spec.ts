@@ -1,25 +1,27 @@
+import path from 'path';
 import { test, expect } from '../../fixtures/beforeAndAfterTest';
 import { HomePage } from '../../pages/homePage';
 import { ProductPage } from '../../pages/productPage';
-import { TestDataUtils, PathUtils } from '../../utils/testDataLoader';
+import { TestDataUtils } from '../../utils/testDataLoader';
 import { MenuTab, ProductSortMode, ProductViewMode } from '../../data-objects/dataEnums';
 import { BrowserContext, Page } from '@playwright/test';
-import { Constants } from '../../utils/constants';
+import { FileUtils } from '../../utils/utilities';
 
 const wholeDataSet: Record<string, Record<string, any>[]> = TestDataUtils.loadFullDataSet(__filename);
 
-const testClassName: string = PathUtils.getSimpleTestClassName(__filename);
+const fileUtils = new FileUtils();
+let userAliasToUse: string;
 let context: BrowserContext;
 let page: Page;
 
-test.beforeAll(async ({ browser }) => {
-  const testArguments: Map<string, any> = await Constants.TEST_CLASS_SETUP_TEARDOWN_INSTANCE.basicSetup(testClassName, browser);
-  context = testArguments.get('context');
-  page = testArguments.get('page');
+test.beforeEach(async ({ browser }) => {
+  userAliasToUse = await fileUtils.getFreeCredentialToRunTest();
+  context = await browser.newContext({ storageState: await fileUtils.getTempStorageStateJsonPath(userAliasToUse) });
+  page = await context.newPage();
 });
 
-test.afterAll(async () => {
-  await Constants.TEST_CLASS_SETUP_TEARDOWN_INSTANCE.basicTeardown(testClassName, context, page);
+test.afterEach(async () => {
+  await fileUtils.releaseBeingUsedCredential(userAliasToUse);
 });
 
 const testCaseTitleTC04 = 'TC 04: Verify users can sort items by price';
@@ -30,6 +32,7 @@ for (const testData of wholeDataSet[testCaseTitleTC04]) {
     const sortMode: ProductSortMode = ProductSortMode.fromName(testData.sortMode);
 
     await test.step('Step #1: Open the Shop page', async () => {
+      await homePage.navigateToTestSite();
       await homePage.clickMenuTab(MenuTab.SHOP);
     });
 

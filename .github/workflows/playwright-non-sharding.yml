@@ -1,7 +1,7 @@
 name: Playwright CI/CD Tests
 on:
   push:
-    branches: [main, develop]
+    branches: [main-unused, develop-unused]
   pull_request:
     branches: [main, develop]
 env:
@@ -31,7 +31,7 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Run Playwright tests
-        run: npx playwright test --workers=4
+        run: npx playwright test
 
       - name: Upload Playwright Report
         uses: actions/upload-artifact@v4

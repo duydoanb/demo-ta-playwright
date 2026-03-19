@@ -109,6 +109,22 @@
             "phoneNumber": "2123411511",
             "email": "jane.ofArc@example.com",
             "paymentMethod": "Check payments"
+        },
+        {
+            "setNo": "dataset #4",
+            "firstName": "Jane",
+            "lastName": "of Arc",
+            "companyName": "AGEST Inc",
+            "address1": "987 LE DUAN",
+            "address2": "Apt 21",
+            "country": "US",
+            "state": "California",
+            "stateCode": "CA",
+            "city": "San Joseria",
+            "postCode": "94105",
+            "phoneNumber": "2123411511",
+            "email": "jane.ofArc@example.com",
+            "paymentMethod": "Check payments"
         }
     ]
 }

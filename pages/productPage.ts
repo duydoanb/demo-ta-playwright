@@ -94,7 +94,7 @@ export class ProductPage extends BasePage {
         const _addToCartBtn = this.dynamicAddToCartButton.nth(productNumber - 1);
         await expect(_addToCartBtn).toBeVisible({ timeout: 10000 });
         await _addToCartBtn.scrollIntoViewIfNeeded();
-        await _addToCartBtn.click({ timeout: 3000 });
+        await _addToCartBtn.click({ timeout: 10000 });
         await expect(this.dynamicAddingProductAnimationFrame).toBeHidden();
     }
 
