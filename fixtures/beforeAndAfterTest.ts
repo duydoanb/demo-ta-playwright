@@ -1,14 +1,45 @@
 import path from 'path';
 import { readFileSync } from 'fs';
-import { APIRequestContext, test as baseTest, Browser, BrowserContext, expect as expectBase, Page } from '@playwright/test';
+import { test as baseTest, Browser, BrowserContext, expect as expectBase, Page } from '@playwright/test';
 import { HomePage } from '../pages/homePage';
 import { LoginPage } from '../pages/loginPage';
+import { CheckoutPage } from '../pages/checkoutPage';
+import { MyAccountPage } from '../pages/myAccountPage';
+import { MyCartPage } from '../pages/myCartPage';
+import { OrderStatusPage } from '../pages/orderStatusPage';
+import { ProductPage } from '../pages/productPage';
+import { ProductDetailsPage } from '../pages/productDetailsPage';
+import { FileUtils } from '../utils/utilities';
+
 
 // Define the types for your fixtures
 export type MyFixtures = {
     basicSetupAction: Record<string, any>,
     singleTestDataProvider: Record<string, any>,
-    dataProviderForAllTests: Record<string, Record<string, any>[]>
+    dataProviderForAllTests: Record<string, Record<string, any>[]>,
+
+    // Page objects with preprared authdata embedded
+    pageWithPreparedCred: Page,
+    contextWithPreparedCred: BrowserContext,
+    homePage: HomePage,
+    loginPage: LoginPage,
+    checkoutPage: CheckoutPage,
+    myAccountPage: MyAccountPage,
+    myCartPage: MyCartPage,
+    orderStatusPage: OrderStatusPage,
+    productDetailsPage: ProductDetailsPage,
+    productPage: ProductPage,
+
+    // Clean Page objects
+    homePageClean: HomePage,
+    loginPageClean: LoginPage,
+    checkoutPageClean: CheckoutPage,
+    myAccountPageClean: MyAccountPage,
+    myCartPageClean: MyCartPage,
+    orderStatusPageClean: OrderStatusPage,
+    productDetailsPageClean: ProductDetailsPage,
+    productPageClean: ProductPage,
+
 };
 
 // Extend the base test
@@ -78,12 +109,59 @@ export const test = baseTest.extend<MyFixtures>({
         });
 
         await use(data);
-    }
+    },
+    pageWithPreparedCred: async ({ browser }, use) => {
+        const fileUtils = new FileUtils();
+        const userAliasToUse: string = await fileUtils.getFreeCredentialToRunTest();
+        const context: BrowserContext = await browser.newContext({ storageState: await fileUtils.getTempStorageStateJsonPath(userAliasToUse) });
+        const page: Page = await context.newPage();
+
+        await use(page);
+
+        // After each test (method)
+        await page.close();
+        await context.close();
+        await fileUtils.releaseBeingUsedCredential(userAliasToUse);
+    },
+    contextWithPreparedCred: async ({ browser }, use) => {
+        const fileUtils = new FileUtils();
+        const userAliasToUse: string = await fileUtils.getFreeCredentialToRunTest();
+        const context: BrowserContext = await browser.newContext({ storageState: await fileUtils.getTempStorageStateJsonPath(userAliasToUse) });
+        const page: Page = await context.newPage();
+
+        await use(context);
+
+        // After each test (method)
+        await page.close();
+        await context.close();
+        await fileUtils.releaseBeingUsedCredential(userAliasToUse);
+    },
+
+    // browsers with prepared auth data
+    checkoutPage: async ({ pageWithPreparedCred }, use) => { await use(new CheckoutPage(pageWithPreparedCred)); },
+    homePage: async ({ pageWithPreparedCred }, use) => { await use(new HomePage(pageWithPreparedCred)); },
+    loginPage: async ({ pageWithPreparedCred }, use) => { await use(new LoginPage(pageWithPreparedCred)); },
+    myAccountPage: async ({ pageWithPreparedCred }, use) => { await use(new MyAccountPage(pageWithPreparedCred)); },
+    myCartPage: async ({ pageWithPreparedCred }, use) => { await use(new MyCartPage(pageWithPreparedCred)); },
+    orderStatusPage: async ({ pageWithPreparedCred }, use) => { await use(new OrderStatusPage(pageWithPreparedCred)); },
+    productDetailsPage: async ({ pageWithPreparedCred }, use) => { await use(new ProductDetailsPage(pageWithPreparedCred)); },
+    productPage: async ({ pageWithPreparedCred }, use) => { await use(new ProductPage(pageWithPreparedCred)); },
+
+    // clean context
+    checkoutPageClean: async ({ page }, use) => { await use(new CheckoutPage(page)); },
+    homePageClean: async ({ page }, use) => { await use(new HomePage(page)); },
+    loginPageClean: async ({ page }, use) => { await use(new LoginPage(page)); },
+    myAccountPageClean: async ({ page }, use) => { await use(new MyAccountPage(page)); },
+    myCartPageClean: async ({ page }, use) => { await use(new MyCartPage(page)); },
+    orderStatusPageClean: async ({ page }, use) => { await use(new OrderStatusPage(page)); },
+    productDetailsPageClean: async ({ page }, use) => { await use(new ProductDetailsPage(page)); },
+    productPageClean: async ({ page }, use) => { await use(new ProductPage(page)); },
 });
 
 export const expect = expectBase;
 
 
+// If you want to re-use the same browser window, for multiple test data in a test --> use this
 export class TestClassSetupAndTearDown {
     async basicSetup(testClassName: string, browserObject: Browser, performLogin: boolean = false): Promise<Map<string, any>> {
         const returnedRecord: Map<string, any> = new Map();

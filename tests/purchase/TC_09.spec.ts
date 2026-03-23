@@ -1,32 +1,9 @@
-import { BrowserContext, Page } from '@playwright/test';
 import { MenuTab } from '../../data-objects/dataEnums';
 import { ProductData } from '../../data-objects/productData';
-import { expect, test } from '../../fixtures/beforeAndAfterTest';
-import { HomePage } from '../../pages/homePage';
-import { MyCartPage } from '../../pages/myCartPage';
-import { ProductPage } from '../../pages/productPage';
-import { DataUtils, FileUtils } from '../../utils/utilities';
+import { test } from '../../fixtures/beforeAndAfterTest';
+import { DataUtils } from '../../utils/utilities';
 
-
-const fileUtils = new FileUtils();
-let userAliasToUse: string;
-let context: BrowserContext;
-let page: Page;
-
-test.beforeEach(async ({ browser }) => {
-  userAliasToUse = await fileUtils.getFreeCredentialToRunTest();
-  context = await browser.newContext({ storageState: await fileUtils.getTempStorageStateJsonPath(userAliasToUse) });
-  page = await context.newPage();
-});
-
-test.afterEach(async () => {
-  await fileUtils.releaseBeingUsedCredential(userAliasToUse);
-});
-
-test('TC 09: Verify users can update quantity of product in cart', async ({ page }) => {
-  const homePage = new HomePage(page);
-  const productPage = new ProductPage(page);
-  const myCartPage = new MyCartPage(page);
+test('TC 09: Verify users can update quantity of product in cart', async ({ homePage, productPage, myCartPage }) => {
   const orderedProductsData: Record<string, ProductData> = {};
   let productData: ProductData;
 

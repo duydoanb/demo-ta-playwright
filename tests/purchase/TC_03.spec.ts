@@ -1,51 +1,30 @@
 import { test } from '../../fixtures/beforeAndAfterTest';
-import { HomePage } from '../../pages/homePage';
-import { ProductPage } from '../../pages/productPage';
-import { MyCartPage } from '../../pages/myCartPage';
-import { CheckoutPage } from '../../pages/checkoutPage';
-import { OrderStatusPage } from '../../pages/orderStatusPage';
 import { PathUtils, TestDataUtils } from '../../utils/testDataLoader';
 import { BillingInfo } from '../../data-objects/billingInfo';
 import { MenuTab, ProductDepartment, ProductViewMode } from '../../data-objects/dataEnums';
-import { BrowserContext, Page } from '@playwright/test';
-import { DataUtils, FileUtils } from '../../utils/utilities';
+import { DataUtils } from '../../utils/utilities';
 import { ProductData } from '../../data-objects/productData';
 
 const wholeDataSet: Record<string, Record<string, any>[]> = TestDataUtils.loadFullDataSet(__filename)
 const testClassName = PathUtils.getSimpleTestClassName(__filename);
 
-const fileUtils = new FileUtils();
-let userAliasToUse: string;
-let context: BrowserContext;
-let page: Page;
-
-test.beforeEach(async ({ browser }) => {
-  userAliasToUse = await fileUtils.getFreeCredentialToRunTest();
-  context = await browser.newContext({ storageState: await fileUtils.getTempStorageStateJsonPath(userAliasToUse) });
-  page = await context.newPage();
-});
-
-test.afterEach(async () => {
-  await fileUtils.releaseBeingUsedCredential(userAliasToUse);
-});
-
 // test.describe.configure({ mode: 'default' });
-test.beforeEach("Empty the shopping cart before each test", async () => {
+test.beforeEach("Empty the shopping cart before each test", async ({ homePage, myCartPage }) => {
   console.log(`[Before each test - ${testClassName}] Emptying the shopping cart for the current test`)
-  const homePage = new HomePage(page);
   await homePage.navigateToTestSite();
   await homePage.clickMyCartLink();
-  await new MyCartPage(page).emptyShoppingCart();
+  await myCartPage.emptyShoppingCart();
 })
 
 const testCaseTitleTC03 = 'TC 03: Verify users can buy an item using different payment methods (all payment methods)';
 for (const testData of wholeDataSet[testCaseTitleTC03]) {
-  test(`${testCaseTitleTC03} using ${testData.paymentMethod} payment method - ${testData.setNo}`, async ({ }) => {
-    const homePage = new HomePage(page);
-    const checkoutPage = new CheckoutPage(page);
-    const myCartPage = new MyCartPage(page);
-    const orderStatusPage = new OrderStatusPage(page);
-    const productPage = new ProductPage(page);
+  test(`${testCaseTitleTC03} using ${testData.paymentMethod} payment method - ${testData.setNo}`, async ({
+    homePage,
+    checkoutPage,
+    myCartPage,
+    orderStatusPage,
+    productPage
+  }) => {
     const billingInfo: BillingInfo = new BillingInfo(testData);
     const randomProductNumber: number = DataUtils.getRandomInt(1, 6);
     const orderedProductsData: Record<string, ProductData> = {};
