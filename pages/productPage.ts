@@ -120,4 +120,32 @@ export class ProductPage extends BasePage {
         return prices;
     }
 
+    async getTotalProductCountInPage(): Promise<number> {
+        await this.waitForProductsResultsToLoad();
+        const links = this.dynamicProductTitleLink;
+        const _productsCount = await links.count();
+        if (_productsCount === 0) {
+            throw new Error('No products found to click');
+        }
+        return _productsCount;
+    }
+
+    async openRandomProductDetailsPage(): Promise<{ name: string; slug: string }> {
+        const link = await this.dynamicProductTitleLink.nth(DataUtils.getRandomInt(0, await this.getTotalProductCountInPage() - 1));
+        await expect(link).toBeVisible();
+        await link.scrollIntoViewIfNeeded();
+
+        const name = (await link.textContent())?.trim() ?? 'undefined product name';
+        const href = (await link.getAttribute('href')) ?? 'undefined product link';
+
+        await link.click();
+        const parts = href.split('/').filter(p => p.length > 0);
+        const slug = parts.length > 0 ? parts.pop() as string : '';
+
+        await this.page.waitForURL(`**/${slug}/**`);
+        await expect(this.page.locator('h1, h2').first()).toContainText(name);
+        console.log(`[INFO] openRandomProductDetailsPage(): Opened the details page of the product [${name}]`)
+        return { name, slug };
+    }
+
 }

@@ -12,5 +12,12 @@
             "setNo": "dataset #3",
             "sortMode": "Sort by price: high to low"
         }
+    ],
+    "TC 10: Add product review and verify it appears": [
+        {
+            "setNo": "Set 01",
+            "reviewRating": 5,
+            "reviewText": "Excellent product! Highly recommended."
+        }
     ]
 }

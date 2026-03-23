@@ -1,6 +1,11 @@
 
 /.vscode/
 
+# Playwright-test-agents
+/.playwright-mcp/
+/specs/
+*seed*.spec.ts
+
 # Playwright
 /.temp-storage-state-data/
 node_modules/

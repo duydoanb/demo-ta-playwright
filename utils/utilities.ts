@@ -14,15 +14,21 @@ import path from "path";
 
 const retryOptionsForFileLock = {
     retries: {
-        retries: 10,           // Number of times to try before giving up
-        factor: 2,             // Exponential backoff factor (wait 2x longer each time)
-        minTimeout: 100,      // Minimum wait time (1 second)
-        maxTimeout: 5000,     // Maximum wait time (10 seconds)
-        randomize: true        // Adds "jitter" so processes don't all retry at the exact same millisecond
+        retries: 10,            // Number of times to try before giving up
+        factor: 2,              // Exponential backoff factor (wait 2x longer each time)
+        minTimeout: 100,        // Minimum wait time (1 second)
+        maxTimeout: 5000,       // Maximum wait time (10 seconds)
+        randomize: true         // Adds "jitter" so processes don't all retry at the exact same millisecond
     }
 };
 
 export class DataUtils {
+
+    static generateTimestampMicrosecondPrecision(): string {
+        const now = new Date();
+        const localTime = new Date(now.getTime() + (7 * 60 * 60 * 1000));
+        return localTime.toISOString().slice(0, 23);
+    }
 
     static getRandomInt(min: number, max: number): number {
         return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -155,7 +161,7 @@ export class FileUtils {
                 const usageData: Record<string, Record<string, string>> = JSON.parse(content);
                 for (const [userNo, data] of Object.entries(usageData)) {
                     if (data.status === CredentialUsageStatus.FREE.getFullName()) {
-                        console.log(`[INFO] getFreeCredentialToRunTest(): ${userNo} is ready to use!`)
+                        console.log(`\n[INFO] getFreeCredentialToRunTest(): ${userNo} is ready to use!`)
                         returnUser = userNo;
                         data.status = CredentialUsageStatus.LOCKED.getFullName();
                         break;
@@ -165,10 +171,10 @@ export class FileUtils {
                 if (returnUser !== defautUser) {
                     const updatedData = { ...usageData };
                     await fs.writeFile(filePath, JSON.stringify(updatedData, null, 2));
-                    console.log(`[INFO] getFreeCredentialToRunTest(): The file ${Constants.CREDENTIAL_USAGE_STATUS_FILE_NAME} is updated safely!`);
+                    console.log(`[INFO] getFreeCredentialToRunTest(): The file ${Constants.CREDENTIAL_USAGE_STATUS_FILE_NAME} is updated safely!\n`);
                 }
             } catch (error) {
-                console.error(`[ERROR] getFreeCredentialToRunTest(): Failed to read and write data to file ${filePath}: `, error);
+                console.error(`\n[ERROR] getFreeCredentialToRunTest(): Failed to read and write data to file ${filePath}: `, error);
             } finally {
                 await release();
             }
@@ -197,14 +203,14 @@ export class FileUtils {
             for (const [userNo, data] of Object.entries(usageData)) {
                 if (userNo === userAlias) {
                     data.status = CredentialUsageStatus.FREE.getFullName();
-                    console.log(`[INFO] releaseBeingUsedCredential(): ${userNo} is freed!`)
+                    console.log(`\n[INFO] releaseBeingUsedCredential(): ${userNo} is freed!`)
                     break;
                 }
             }
             await fs.writeFile(filePath, JSON.stringify({ ...usageData }, null, 2));
-            console.log(`[INFO] releaseBeingUsedCredential(): The file ${Constants.CREDENTIAL_USAGE_STATUS_FILE_NAME} is updated safely!`);
+            console.log(`[INFO] releaseBeingUsedCredential(): The file ${Constants.CREDENTIAL_USAGE_STATUS_FILE_NAME} is updated safely!\n`);
         } catch (error) {
-            console.error(`[ERROR] releaseBeingUsedCredential(): Failed to read and write data to file ${filePath}: `, error);
+            console.error(`\n[ERROR] releaseBeingUsedCredential(): Failed to read and write data to file ${filePath}: `, error);
         } finally {
             await release();
         }
