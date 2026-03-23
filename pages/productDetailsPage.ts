@@ -44,7 +44,7 @@ export class ProductDetailsPage extends BasePage {
     }
 
     async addReview(reviewText: string, rating: number = 5, timeStamp?: string): Promise<string> {
-        timeStamp = timeStamp ?? DataUtils.generateTimestampMicrosecondPrecision();
+        timeStamp = timeStamp ?? DataUtils.generateDatetimeStampMicrosecondPrecision();
         reviewText = `${reviewText} Commented at ${timeStamp}!`
         await this.openReviewsTab();
         await this.selectRating(rating);

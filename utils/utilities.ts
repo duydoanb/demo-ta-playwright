@@ -22,12 +22,21 @@ const retryOptionsForFileLock = {
     }
 };
 
+const _sleepAction = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+export async function sleep(timeoutInMicrosecs: number) {
+    await _sleepAction(timeoutInMicrosecs);
+}
+
 export class DataUtils {
 
-    static generateTimestampMicrosecondPrecision(): string {
+    static generateDatetimeStampMicrosecondPrecision(): string {
         const now = new Date();
         const localTime = new Date(now.getTime() + (7 * 60 * 60 * 1000));
         return localTime.toISOString().slice(0, 23);
+    }
+
+    static generateUnixTimeStamp(setPrecisionToSecond: boolean = false): number {
+        return setPrecisionToSecond ? Math.floor(Date.now() / 1000) : Date.now();
     }
 
     static getRandomInt(min: number, max: number): number {
@@ -104,11 +113,6 @@ export class ActionUtils {
 
 }
 
-const _sleepAction = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-export async function sleep(timeoutInMicrosecs: number) {
-    await _sleepAction(timeoutInMicrosecs);
-}
-
 export class FileUtils {
     constructor() { }
     async ensureJsonFileExists(filePath: string): Promise<void> {
@@ -118,13 +122,22 @@ export class FileUtils {
         } catch {
             // If access fails, the file likely doesn't exist; create it with an empty object
             await fs.writeFile(filePath, JSON.stringify({}, null, 2));
-            console.log(`Created new file at: ${filePath}`);
+            console.log(`>>> [INFO] ensureJsonFileExists(): Created new file at: ${filePath}`);
         }
     }
 
-    async loadFreshContentToCredsUsageStatusFile(filePath: string): Promise<void> {
+    async getCredentialCreationTimeData(): Promise<Record<string, Record<string, string>>> {
+        const _filePath = path.join(Constants.TEMP_STORAGE_STATE_DIR_PATH, Constants.CREDENTIAL_CREATION_TIME_FILE_NAME);
+        await this.ensureJsonFileExists(_filePath);
+        const content = await fs.readFile(_filePath, 'utf8');
+        const _creationTimeData: Record<string, Record<string, string>> = JSON.parse(content);
+        return _creationTimeData;
+    }
+
+    async loadFreshContentToCredsUsageStatusFile(): Promise<void> {
+        const filePath = path.join(Constants.TEMP_STORAGE_STATE_DIR_PATH, Constants.CREDENTIAL_USAGE_STATUS_FILE_NAME);
         await fs.writeFile(filePath, JSON.stringify({}, null, 2));
-        console.log(`Cleared the old content of the file ${filePath}`);
+        console.log(`>>> [INFO] loadFreshContentToCredsUsageStatusFile(): Cleared the old content of the file ${filePath}`);
 
         const credsUsageData: Record<string, Record<string, string>> = {};
         for (const cred of Constants.ALL_VALID_CREDENTIALS) {
@@ -133,9 +146,9 @@ export class FileUtils {
         try {
             const jsonString = JSON.stringify(credsUsageData, null, 2);
             await fs.writeFile(filePath, jsonString, 'utf8');
-            console.log("Credentials usage statuses are successfully saved!");
+            console.log(">>> [INFO] loadFreshContentToCredsUsageStatusFile(): Credentials usage statuses are successfully saved!");
         } catch (error) {
-            console.error("Error saving data:", error);
+            console.error(">>> [ERROR] loadFreshContentToCredsUsageStatusFile(): Error saving data:", error);
         }
     }
 

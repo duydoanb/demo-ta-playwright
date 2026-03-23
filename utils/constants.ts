@@ -13,6 +13,7 @@ export class Constants {
     private static _temp_login_state_file_path: (userAlias: string) => string;
     private static _temp_storage_state_data_dir_path: string;
     private static _credential_usage_status_file_name: string;
+    private static _credential_creation_time_data_file_name: string;
 
     // If the current timestamp exceeds the auth data generation timestamp by this threshold (in seconds) -> generate new auth data
     private static _auth_data_lifetime_threshold: number;
@@ -39,6 +40,7 @@ export class Constants {
         this._temp_login_state_file_path = (_userAlias: string): string => `.temp-storage-state-data/.auth/${_userAlias}.json`;
         this._temp_storage_state_data_dir_path = path.join(process.cwd(), '.temp-storage-state-data', '.auth');
         this._credential_usage_status_file_name = "credential_usage_status.json";
+        this._credential_creation_time_data_file_name = "credential_creation_time.json";
 
         this._auth_data_lifetime_threshold = 12 * 60 * 60; // Maximum is 30 * 24 hours, current is 12 hours
         this._initialized = true;
@@ -77,6 +79,11 @@ export class Constants {
     static get CREDENTIAL_USAGE_STATUS_FILE_NAME(): string {
         this.initializeOnce();
         return this._credential_usage_status_file_name;
+    }
+
+    static get CREDENTIAL_CREATION_TIME_FILE_NAME(): string {
+        this.initializeOnce();
+        return this._credential_creation_time_data_file_name;
     }
 
     static get AUTH_DATA_LIFETIME_THRESHOLD(): number {
