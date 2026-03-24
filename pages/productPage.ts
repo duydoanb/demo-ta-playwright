@@ -40,7 +40,7 @@ export class ProductPage extends BasePage {
         this.productPriceField = page.locator("xpath=//div[@class='content-product ']//span[@class='price']");
     }
 
-    async waitForProductsResultsToLoad(timeout: number = 6000): Promise<void> {
+    async waitForProductsResultsToLoad(timeout: number = 10000): Promise<void> {
         await this.productsResultsLoadingSpinner.waitFor({ state: 'detached', timeout: timeout });
     }
 

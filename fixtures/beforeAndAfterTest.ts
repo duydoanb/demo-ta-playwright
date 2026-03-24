@@ -50,7 +50,6 @@ export const test = baseTest.extend<MyFixtures>({
         const basicSetupAction = new Map<string, any>();
         const homePage = new HomePage(page);
         const testName = testInfo.title;
-        // const baseContext = Logger.fromTestInfo(testInfo);
         Constants.SET_CURRENT_STEP_CONTEXT(testInfo);
 
         // This runs BEFORE each test (Like @BeforeMethod)

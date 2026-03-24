@@ -30,6 +30,12 @@ export async function sleep(timeoutInMicrosecs: number) {
 
 export class DataUtils {
 
+    static getCurrentLocalISOTimeStamp(): string {
+        const tzOffset = new Date().getTimezoneOffset() * 60000;
+        const localISOTime = new Date(Date.now() - tzOffset).toISOString().split('.')[0].replace(/[:]/g, '-');
+        return localISOTime;
+    }
+
     static generateDatetimeStampMicrosecondPrecision(): string {
         const now = new Date();
         const localTime = new Date(now.getTime() + (7 * 60 * 60 * 1000));

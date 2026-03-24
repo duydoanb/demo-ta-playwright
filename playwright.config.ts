@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import { DataUtils } from './utils/utilities';
 
 /**
  * Read environment variables from file.
@@ -7,6 +8,9 @@ import { defineConfig, devices } from '@playwright/test';
 import dotenv from 'dotenv';
 import path from 'path';
 dotenv.config({ path: path.resolve(__dirname, '.env') });
+const suiteStartTimeStamp = DataUtils.getCurrentLocalISOTimeStamp();
+process.env.TEST_RUN_ID = `local-${suiteStartTimeStamp}`;
+// console.log(`[PW config.ts file] process.env.TEST_RUN_ID = ${process.env.TEST_RUN_ID}`);
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -29,8 +33,8 @@ export default defineConfig({
   maxFailures: process.env.CI ? 5 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: process.env.CI
-    ? [['blob'], ['html'], ['allure-playwright', { detail: true, outputFolder: 'allure-results', suiteTitle: true }]]
-    : [['html'], ['list'], ['allure-playwright', { detail: true, outputFolder: 'allure-results', suiteTitle: true }], ['junit', { outputFile: 'test-results/junit-results.xml' }]],
+    ? [['blob'], ['html'], ['allure-playwright', { detail: true, resultsDir: `allure-results/${process.env.TEST_RUN_ID}/`, suiteTitle: true }]]
+    : [['html', { open: 'on-failure' }], ['list'], ['allure-playwright', { detail: true, resultsDir: `allure-results/${process.env.TEST_RUN_ID}/`, suiteTitle: true }], ['junit', { outputFile: `junit-reports/${process.env.TEST_RUN_ID}/junit-results.xml` }]],
   preserveOutput: 'failures-only',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
@@ -48,6 +52,13 @@ export default defineConfig({
     launchOptions: {
       slowMo: process.env.CI ? 0 : 100,
     }
+  },
+  metadata: {
+    title: 'Regression tests',
+    'revision.link': process.env.BASE_URL,
+    'revision.id': process.env.TEST_RUN_ID,
+    'revision.author': 'Duy Doan',
+    'timestamp': suiteStartTimeStamp,
   },
 
   /* Configure projects for major browsers */
