@@ -5,9 +5,11 @@ import { LoginPage } from '../../pages/loginPage';
 import { Constants } from '../../utils/constants';
 import { DataUtils, FileUtils } from '../../utils/utilities';
 import { Credential } from '../../data-objects/credential';
+import { Logger } from '../../utils/logger';
 
 setup.describe.configure({ mode: 'default' });
-setup(`Authenticate once for all credentials`, async ({ browser, page }) => {
+setup(`Authenticate once for all credentials`, async ({ browser, page }, testInfo) => {
+    Constants.SET_CURRENT_STEP_CONTEXT(testInfo);
     setup.slow();
     let stepNum = 1;
 
@@ -22,10 +24,10 @@ setup(`Authenticate once for all credentials`, async ({ browser, page }) => {
         await setup.step(`Step #${stepNum++}: Check if the ${credData.alias}.json exists`, async () => {
             if (!fs.existsSync(authDataFilePath)) {
                 doesAuthFileExist = false;
-                console.log(`>>> [WARNING] setupAuth(): Could not find the auth data file at ${authDataFilePath}!`);
-                console.log(`>>> [INFO] setupAuth(): Need to generate a new auth data file for ${credData.alias}!`);
+                Logger.warn(`Could not find the auth data file at ${authDataFilePath}!`);
+                Logger.info(`Need to generate a new auth data file for ${credData.alias}!`);
             } else {
-                console.log(`>>> [INFO] setupAuth(): Found the auth data file at ${authDataFilePath}!`);
+                Logger.info(`Found the auth data file at ${authDataFilePath}!`);
             }
         });
 
@@ -37,28 +39,28 @@ setup(`Authenticate once for all credentials`, async ({ browser, page }) => {
 
                     if (!createdTime) {
                         isAuthDataValid = false;
-                        console.log(`>>> [WARNING] setupAuth(): Auth data creation time of ${credData.alias} is not found! Saving new auth data!`);
+                        Logger.warn(`Auth data creation time of ${credData.alias} is not found! Saving new auth data!`);
                     } else {
                         if (DataUtils.generateUnixTimeStamp(true) <= Number(createdTime)) {
                             isAuthDataValid = false;
-                            console.log(`>>> [WARNIG] setupAuth(): Auth data creation time of [${credData.alias}] is not correct. Saving new auth data!`);
+                            Logger.warn(`Auth data creation time of [${credData.alias}] is not correct. Saving new auth data!`);
                         } else if (DataUtils.generateUnixTimeStamp(true) - Number(createdTime) >= Constants.AUTH_DATA_LIFETIME_THRESHOLD) {
                             isAuthDataValid = false;
-                            console.log(">>> [INFO] setupAuth(): Auth data generation time exceeds threshold. Saving new auth data!");
+                            Logger.info("Auth data generation time exceeds threshold. Saving new auth data!");
                         } else {
-                            console.log(`>>> [INFO] setupAuth(): Auth data of [${credData.alias}] is still valid!`);
+                            Logger.info(`Auth data of [${credData.alias}] is still valid!`);
                         }
                     }
                 } catch (error) {
                     isAuthDataValid = false;
-                    console.log(`>>> [WARNING] setupAuth(): Failed to validate the lifetime of the auth data of the ${credData.alias}! Saving new auth data!`);
+                    Logger.warn(`Failed to validate the lifetime of the auth data of the ${credData.alias}! Saving new auth data!`);
                 }
             }
         })
 
         await setup.step(`Step #${stepNum++}: Save new auth data for ${credData.alias} if needed`, async () => {
             if (!doesAuthFileExist || !isAuthDataValid) {
-                console.log(`>>> [INFO] setupAuth(): Saving new auth data to ${authDataFilePath}`);
+                Logger.info(`Saving new auth data to ${authDataFilePath}`);
                 // Create a new and clean (incognito-like) session
                 await page.context().close();
                 const newContext = await browser.newContext();
@@ -68,23 +70,25 @@ setup(`Authenticate once for all credentials`, async ({ browser, page }) => {
                 await new LoginPage(page).login(new Credential({ username: credData.username, password: credData.password }), false);
                 await page.context().storageState({ path: authDataFilePath });
 
-                console.log(`>>> [INFO] setupAuth(): Saved new auth data to ${authDataFilePath}`);
+                Logger.info(`Saved new auth data to ${authDataFilePath}`);
                 const creationTimeData: Record<string, Record<string, string>> = await fileUtils.getCredentialCreationTimeData();
                 creationTimeData[credData.alias] = { createdAt: DataUtils.generateUnixTimeStamp(true).toString() }
                 const updatedData = { ...creationTimeData };
                 await fs.writeFileSync(credsCreationTimeFilePath, JSON.stringify(updatedData, null, 2));
-                console.log(`>>> [INFO] setupAuth(): The file ${credsCreationTimeFilePath} is updated with creation time of [${credData.alias}]!\n`);
+                Logger.info(`The file ${credsCreationTimeFilePath} is updated with creation time of [${credData.alias}]!\n`);
 
             } else {
-                console.log(`>>> [INFO] setupAuth(): No need to save new auth data for [${credData.alias}]!\n`);
+                Logger.info(`No need to save new auth data for [${credData.alias}]!\n`);
             }
+            Logger.newEmptyLine();
         });
     }
 });
 
-setup("Prepare JSON file for credentials usages status", async ({ page }) => {
+setup("Prepare JSON file for credentials usages status", async ({ }) => {
     const credsUsageDataFilePath = path.join(Constants.TEMP_STORAGE_STATE_DIR_PATH, Constants.CREDENTIAL_USAGE_STATUS_FILE_NAME);
     const fileUtils = new FileUtils();
     await fileUtils.ensureJsonFileExists(credsUsageDataFilePath);
     await fileUtils.loadFreshContentToCredsUsageStatusFile();
+    Logger.newEmptyLine();
 });

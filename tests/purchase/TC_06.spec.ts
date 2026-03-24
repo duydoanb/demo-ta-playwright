@@ -3,17 +3,15 @@ import { BillingInfoEnum, MenuTab, ProductViewMode } from '../../data-objects/da
 import { test } from '../../fixtures/beforeAndAfterTest';
 import { DataUtils } from '../../utils/utilities';
 import { ProductData } from '../../data-objects/productData';
+import { Constants } from '../../utils/constants';
 
 // Run this test using a clean context to avoid logging in.
 // Not needed now
 // test.use({ storageState: { cookies: [], origins: [] } });
 test('TC 06: Verify users try to buy an item without logging in (As a guest)', async ({
-  homePageClean,
-  checkoutPageClean,
-  myCartPageClean,
-  orderStatusPageClean,
-  productPageClean
-}) => {
+  homePageClean, checkoutPageClean, myCartPageClean, orderStatusPageClean, productPageClean }, testInfo) => {
+
+  Constants.SET_CURRENT_STEP_CONTEXT(testInfo);
   const billingInfo: BillingInfo = new BillingInfo(await BillingInfoEnum.VN_ADDRESS_1.convertToRecordObject());
   const randomProductNumber: number = DataUtils.getRandomInt(1, 6);
   const orderedProductsData: Record<string, ProductData> = {};

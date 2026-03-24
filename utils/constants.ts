@@ -1,6 +1,7 @@
+import path from "path";
 import { TestClassSetupAndTearDown } from "../fixtures/beforeAndAfterTest";
 import { Credential } from "../data-objects/credential";
-import path from "path";
+import { TestInfo } from "@playwright/test";
 
 export class Constants {
     private static _initialized = false;
@@ -17,6 +18,9 @@ export class Constants {
 
     // If the current timestamp exceeds the auth data generation timestamp by this threshold (in seconds) -> generate new auth data
     private static _auth_data_lifetime_threshold: number;
+
+    // Logger
+    private static _stepContextForProcess: TestInfo;
 
     // Playwright use different processes for global-setup level and test-class level so this CANNOT be init at global-setup phase 
     // Has to be init during run-time, in each process instead
@@ -89,5 +93,15 @@ export class Constants {
     static get AUTH_DATA_LIFETIME_THRESHOLD(): number {
         this.initializeOnce();
         return this._auth_data_lifetime_threshold;
+    }
+
+    static get CURRENT_STEP_CONTEXT(): TestInfo {
+        this.initializeOnce();
+        return this._stepContextForProcess;
+    }
+
+    static SET_CURRENT_STEP_CONTEXT(newContext: TestInfo): void {
+        this.initializeOnce();
+        this._stepContextForProcess = newContext;
     }
 }

@@ -4,11 +4,12 @@ import { BillingInfo } from '../../data-objects/billingInfo';
 import { BillingInfoEnum, MenuTab } from '../../data-objects/dataEnums';
 import { DataUtils } from '../../utils/utilities';
 import { ProductData } from '../../data-objects/productData';
+import { Logger } from '../../utils/logger';
 
 const testClassName = PathUtils.getSimpleTestClassName(__filename);
 
 test.beforeEach("Empty the shopping cart before each test", async ({ homePage, myCartPage }) => {
-  console.log(`[Before each test - ${testClassName}] Emptying the shopping cart for the current test`)
+  Logger.info(`[Before each test] Emptying the shopping cart for the current test`)
   await homePage.navigateToTestSite();
   await homePage.clickMyCartLink();
   await myCartPage.emptyShoppingCart();

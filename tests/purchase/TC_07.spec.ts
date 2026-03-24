@@ -1,17 +1,15 @@
 import { MenuTab, ProductViewMode } from '../../data-objects/dataEnums';
 import { test } from '../../fixtures/beforeAndAfterTest';
+import { Constants } from '../../utils/constants';
 import { DataUtils } from '../../utils/utilities';
 
 // Run this test using a clean context as logging in is not required
 // Not needed now
 // test.use({ storageState: { cookies: [], origins: [] } });
 test('TC 07: Ensure proper error handling when mandatory fields are blank', async ({
-  page,
-  homePageClean,
-  checkoutPageClean,
-  myCartPageClean,
-  productPageClean
-}) => {
+  page, homePageClean, checkoutPageClean, myCartPageClean, productPageClean }, testInfo) => {
+
+  Constants.SET_CURRENT_STEP_CONTEXT(testInfo);
   const billingDataFillingStatus: Record<string, Record<string, boolean>> = {
     firstName: { isFilled: false },
     lastName: { isFilled: false },

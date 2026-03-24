@@ -9,6 +9,7 @@ This project follows a conventional Playwright framework structure with:
 - Page Object Model (POM) under `pages/`
 - Test fixtures and lifecycle hooks under `fixtures/`
 - Data-driven tests using `testData.json` files in each test module
+- Product details workflows including review submission/verification (TC 10)
 - Auth storage state per credential, plus a credential pool to avoid parallel data conflicts
 - Multi-reporter output: HTML, List, JUnit XML, Allure, and blob (for sharded CI)
 - CI execution via GitHub Actions workflows in `.github/workflows/`
@@ -32,7 +33,7 @@ This project follows a conventional Playwright framework structure with:
 |   |-- products/
 |   |-- orders/
 |   `-- test-setup/           # Auth/storage-state setup
-|-- data-objects/             # DTOs / enums used by tests
+|-- data-objects/             # DTOs / enums used by tests (e.g., ProductData)
 |-- utils/                    # Test utilities and data loaders
 |-- .temp-storage-state-data/ # Auth storage + credential usage file
 |-- playwright.config.ts      # Playwright configuration
@@ -61,6 +62,7 @@ VALID_USERNAME_1=your-user
 VALID_PASSWORD_1=your-pass
 VALID_CREDENTIALS=[{"username":"user1","password":"pass1","alias":"user1"}]
 DEBUG_MODE=false
+TEST_RUN_ID=local-2026-03-23T10-00-00-000Z
 ```
 
 `playwright.config.ts` reads this file automatically.
@@ -68,6 +70,7 @@ DEBUG_MODE=false
 Notes:
 - `VALID_CREDENTIALS` is a JSON array used to pre-generate storage states and lease credentials safely in parallel.
 - Set `DEBUG_MODE=true` to disable retries locally.
+- `TEST_RUN_ID` is stamped into logs and Allure report metadata; it is auto-generated if not provided.
 
 ## Run Tests
 
@@ -160,6 +163,7 @@ blob-report/
 Tests can load dataset entries and iterate them to create parameterized scenarios. This repository already uses that pattern in files like:
 
 - `tests/purchase/TC_01.spec.ts`
+- `tests/products/TC_10.spec.ts`
 
 ## Debugging
 

@@ -1,7 +1,7 @@
 ﻿# Project Summary: demo-ta-playwright
 
 ## Purpose
-Playwright-based UI automation framework with Page Object Model, data-driven tests, fixtures that mimic TestNG lifecycle hooks, credential leasing to avoid parallel data conflicts, and CI execution with optional test sharding and report merging.
+Playwright-based UI automation framework with Page Object Model, data-driven tests, fixtures that mimic TestNG lifecycle hooks, credential leasing to avoid parallel data conflicts, and CI execution with optional test sharding and report merging. Includes product-detail workflows like review submission and validation.
 
 ## Tech Stack
 - Playwright Test (`@playwright/test`)
@@ -13,7 +13,7 @@ Playwright-based UI automation framework with Page Object Model, data-driven tes
 ## Environment and Secrets
 - `.env` is loaded in `playwright.config.ts` with `dotenv.config()`.
 - Required variables: `BASE_URL`, `VALID_USERNAME_1`, `VALID_PASSWORD_1`, `VALID_CREDENTIALS` (JSON array).
-- Optional variables: `DEBUG_MODE` (disables retries locally).
+- Optional variables: `DEBUG_MODE` (disables retries locally), `TEST_RUN_ID` (stamped into logs and Allure metadata).
 - Credentials are currently stored in `.env` in plaintext (risk for shared repos).
 
 ## Playwright Configuration
@@ -48,6 +48,7 @@ File: `fixtures/beforeAndAfterTest.ts`
 Custom fixtures:
 - `basicSetupAction`: navigate to base URL and login if login link is visible.
 - `singleTestDataProvider` and `dataProviderForAllTests`: load test data from `testData.json` in each test folder.
+- Page-object fixtures include `productDetailsPage` (and clean variants) in addition to shop, cart, checkout, and account pages.
 
 Test-class setup/teardown helper:
 - `TestClassSetupAndTearDown.basicSetup()` creates a separate context/page per test class and optionally logs in.
@@ -64,6 +65,7 @@ Folder: `pages/`
 - `checkoutPage.ts`: billing form and payment selection.
 - `orderStatusPage.ts`: order confirmation validations.
 - `myAccountPage.ts`: orders history navigation and order ID extraction.
+- `productDetailsPage.ts`: reviews tab handling, star rating selection, review submission, and verification.
 
 ## Data Objects and Enums
 Folder: `data-objects/`
@@ -72,6 +74,7 @@ Folder: `data-objects/`
 - `credential.ts`: credential DTO for login/storage state.
 - `dataEnums.ts`: `PaymentMethod`, `ProductSortMode`, `MenuTab`.
 - `dataEnums.ts` also contains product view/department/show-limit enums and `CredentialUsageStatus`.
+- `productData.ts`: product title/price/quantity with total-cost helpers.
 
 ## Utilities
 Folder: `utils/`
@@ -85,7 +88,7 @@ Folder: `utils/`
 - `utilities.ts`:
   - `FileUtils` provides credential leasing with file locks and storageState paths
   - `ActionUtils` encapsulates an end-to-end order flow
-  - `DataUtils` provides price/quantity helpers
+  - `DataUtils` provides price/quantity helpers and aggregates `ProductData` totals
 
 ## Tests
 Folder: `tests/`
@@ -98,9 +101,13 @@ Folder: `tests/`
   - product sorting validation
   - data-driven via `tests/products/testData.json`
   - uses credential leasing + storageState
+- `products/TC_10.spec.ts`:
+  - product review submission and verification from a random product details page
+  - data-driven via `tests/products/testData.json`
 - `orders/TC_05.spec.ts`:
   - order history validation
   - uses credential leasing + storageState
+- `seed.spec.ts`: empty placeholder test file (currently no content).
 
 ## CI/CD
 Files: `.github/workflows/playwright-non-sharding.yml`, `.github/workflows/playwright-sharding.yml`

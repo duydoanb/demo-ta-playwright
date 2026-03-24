@@ -1,6 +1,7 @@
 import { test, expect } from '../../fixtures/beforeAndAfterTest';
 import { TestDataUtils } from '../../utils/testDataLoader';
 import { MenuTab, ProductSortMode, ProductViewMode } from '../../data-objects/dataEnums';
+import { Logger } from '../../utils/logger';
 
 const wholeDataSet: Record<string, Record<string, any>[]> = TestDataUtils.loadFullDataSet(__filename);
 
@@ -36,6 +37,7 @@ async function createSortedPricesList(rawPricesList: number[], sortMode: Product
   } else if (sortMode === ProductSortMode.BY_PRICE_HIGH_TO_LOW) {
     return structuredClone(rawPricesList).sort((a, b) => b - a);
   } else {
+    Logger.error(`The sort mode [${sortMode}] is not supported!`);
     throw new Error(`The sort mode [${sortMode}] is not supported!`);
   }
 }

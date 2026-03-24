@@ -11,6 +11,7 @@ import { CheckoutPage } from "../pages/checkoutPage";
 import { OrderStatusPage } from "../pages/orderStatusPage";
 import { Constants } from "./constants";
 import path from "path";
+import { Logger } from "./logger";
 
 const retryOptionsForFileLock = {
     retries: {
@@ -122,7 +123,7 @@ export class FileUtils {
         } catch {
             // If access fails, the file likely doesn't exist; create it with an empty object
             await fs.writeFile(filePath, JSON.stringify({}, null, 2));
-            console.log(`>>> [INFO] ensureJsonFileExists(): Created new file at: ${filePath}`);
+            Logger.info(`ensureJsonFileExists(): Created new file at: ${filePath}`);
         }
     }
 
@@ -137,7 +138,7 @@ export class FileUtils {
     async loadFreshContentToCredsUsageStatusFile(): Promise<void> {
         const filePath = path.join(Constants.TEMP_STORAGE_STATE_DIR_PATH, Constants.CREDENTIAL_USAGE_STATUS_FILE_NAME);
         await fs.writeFile(filePath, JSON.stringify({}, null, 2));
-        console.log(`>>> [INFO] loadFreshContentToCredsUsageStatusFile(): Cleared the old content of the file ${filePath}`);
+        Logger.info(`loadFreshContentToCredsUsageStatusFile(): Cleared the old content of the file ${filePath}`);
 
         const credsUsageData: Record<string, Record<string, string>> = {};
         for (const cred of Constants.ALL_VALID_CREDENTIALS) {
@@ -146,9 +147,9 @@ export class FileUtils {
         try {
             const jsonString = JSON.stringify(credsUsageData, null, 2);
             await fs.writeFile(filePath, jsonString, 'utf8');
-            console.log(">>> [INFO] loadFreshContentToCredsUsageStatusFile(): Credentials usage statuses are successfully saved!");
+            Logger.info("loadFreshContentToCredsUsageStatusFile(): Credentials usage statuses are successfully saved!");
         } catch (error) {
-            console.error(">>> [ERROR] loadFreshContentToCredsUsageStatusFile(): Error saving data:", error);
+            Logger.error(`loadFreshContentToCredsUsageStatusFile(): Error saving data: ${error}`);
         }
     }
 
@@ -174,7 +175,7 @@ export class FileUtils {
                 const usageData: Record<string, Record<string, string>> = JSON.parse(content);
                 for (const [userNo, data] of Object.entries(usageData)) {
                     if (data.status === CredentialUsageStatus.FREE.getFullName()) {
-                        console.log(`\n[INFO] getFreeCredentialToRunTest(): ${userNo} is ready to use!`)
+                        Logger.info(`getFreeCredentialToRunTest(): ${userNo} is ready to use!`)
                         returnUser = userNo;
                         data.status = CredentialUsageStatus.LOCKED.getFullName();
                         break;
@@ -184,10 +185,10 @@ export class FileUtils {
                 if (returnUser !== defautUser) {
                     const updatedData = { ...usageData };
                     await fs.writeFile(filePath, JSON.stringify(updatedData, null, 2));
-                    console.log(`[INFO] getFreeCredentialToRunTest(): The file ${Constants.CREDENTIAL_USAGE_STATUS_FILE_NAME} is updated safely!\n`);
+                    Logger.info(`getFreeCredentialToRunTest(): The file ${Constants.CREDENTIAL_USAGE_STATUS_FILE_NAME} is updated safely!\n`);
                 }
             } catch (error) {
-                console.error(`\n[ERROR] getFreeCredentialToRunTest(): Failed to read and write data to file ${filePath}: `, error);
+                Logger.error(`getFreeCredentialToRunTest(): Failed to read and write data to file ${filePath}: ${error}`);
             } finally {
                 await release();
             }
@@ -197,7 +198,7 @@ export class FileUtils {
             } else {
                 currentTime = Math.floor(Date.now());
                 if ((currentTime - startTime) / 1000 > warningMessToBeDisplayedAtSecondMark) {
-                    console.log(`[WARNING] getFreeCredentialToRunTest(): Could not find a free credential to run test after ${(currentTime - startTime) / 1000} seconds!!!`);
+                    Logger.warn(`getFreeCredentialToRunTest(): Could not find a free credential to run test after ${(currentTime - startTime) / 1000} seconds!!!`);
                     warningMessToBeDisplayedAtSecondMark += 5;
                 }
                 await sleep(retryInterval);
@@ -216,14 +217,14 @@ export class FileUtils {
             for (const [userNo, data] of Object.entries(usageData)) {
                 if (userNo === userAlias) {
                     data.status = CredentialUsageStatus.FREE.getFullName();
-                    console.log(`\n[INFO] releaseBeingUsedCredential(): ${userNo} is freed!`)
+                    Logger.info(`releaseBeingUsedCredential(): ${userNo} is freed!`)
                     break;
                 }
             }
             await fs.writeFile(filePath, JSON.stringify({ ...usageData }, null, 2));
-            console.log(`[INFO] releaseBeingUsedCredential(): The file ${Constants.CREDENTIAL_USAGE_STATUS_FILE_NAME} is updated safely!\n`);
+            Logger.info(`releaseBeingUsedCredential(): The file ${Constants.CREDENTIAL_USAGE_STATUS_FILE_NAME} is updated safely!\n`);
         } catch (error) {
-            console.error(`\n[ERROR] releaseBeingUsedCredential(): Failed to read and write data to file ${filePath}: `, error);
+            Logger.error(`releaseBeingUsedCredential(): Failed to read and write data to file ${filePath}: ${error}`);
         } finally {
             await release();
         }

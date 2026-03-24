@@ -15,7 +15,7 @@
     ],
     "TC 10: Add product review and verify it appears": [
         {
-            "setNo": "Set 01",
+            "setNo": "set #1",
             "reviewRating": 5,
             "reviewText": "Excellent product! Highly recommended."
         }
