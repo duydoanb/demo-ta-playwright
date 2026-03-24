@@ -1,6 +1,7 @@
 import { Page, Locator, expect } from '@playwright/test';
 import { BasePage } from './basePage';
 import { BillingInfo } from '../data-objects/billingInfo';
+import { Logger } from '../utils/logger';
 
 export class CheckoutPage extends BasePage {
     private readonly placeOrderButton: Locator;
@@ -104,7 +105,7 @@ export class CheckoutPage extends BasePage {
         }
 
         await this.page.getByRole('radio', { name: billingInfo.paymentMethod.getFullName() }).check();
-        console.log("[INFO] fillBillingDetailsAndPlaceOrder(): Filled all billing info data to the form!");
+        Logger.info("fillBillingDetailsAndPlaceOrder(): Filled all billing info data to the form!");
         await this.clickPlaceOrderBtn();
     }
 

@@ -2,6 +2,7 @@ import { Page, Locator, expect } from '@playwright/test';
 import { BasePage } from './basePage';
 import { DataUtils } from '../utils/utilities';
 import { ProductData } from '../data-objects/productData';
+import { Logger } from '../utils/logger';
 
 export class MyCartPage extends BasePage {
     private readonly selectedProductsTable: Locator;
@@ -114,7 +115,7 @@ export class MyCartPage extends BasePage {
                 }
             }
 
-            foundProduct ? console.log(`[INFO] verifyCartContainsProducts(): The product [${productTitle} - ${productData.priceAsString} - Quantity: ${productData.quantity}] is in the cart!`) : console.log(`[ERROR] verifyCartContainsProducts(): The product [${productTitle} - ${productData.priceAsString} - Quantity: ${productData.quantity}] is NOT in the cart!`)
+            foundProduct ? Logger.info(`verifyCartContainsProducts(): The product [${productTitle} - ${productData.priceAsString} - Quantity: ${productData.quantity}] is in the cart!`) : Logger.info(`verifyCartContainsProducts(): The product [${productTitle} - ${productData.priceAsString} - Quantity: ${productData.quantity}] is NOT in the cart!`)
             expect(foundProduct).toStrictEqual(true);
         }
     }
@@ -153,18 +154,18 @@ export class MyCartPage extends BasePage {
             throw new Error(`[ERROR] Invalid new quantity to set: ${newQty}!!!`);
         }
         if (newQty === productData.quantity) {
-            console.log(`[WARNING] editProductQuantity method: the new quantity is the same as the current quantity! Won't perform anything!`);
+            Logger.warn(`editProductQuantity method: the new quantity is the same as the current quantity! Won't perform anything!`);
             return;
         }
         if (newQty === 0) {
-            console.log(`[INFO] changeProductQuantityTo(): Will remove the product from the cart as the new quantity is set to 0!!`);
+            Logger.info(`changeProductQuantityTo(): Will remove the product from the cart as the new quantity is set to 0!!`);
             await this.page.locator(this.removeProductLinkByProductNameXpath(productData.title)).click();
             await expect(this.page.locator(this.productRowByProductNameXpath(productData.title))).toBeHidden({ timeout: 10000 });
             productData.quantity = newQty;
             return;
         }
 
-        console.log(`\n[INFO] changeProductQuantityTo(): Current quantity of the product [${productData.title} - ${productData.priceAsString}]: ${productData.quantity}`);
+        Logger.info(`changeProductQuantityTo(): Current quantity of the product [${productData.title} - ${productData.priceAsString}]: ${productData.quantity}`);
         if (editUsingQtyTextbox) {
             const _editQtyTxtBox = this.page.locator(this.productQuantityTextBoxByProductNameXpath(productData.title));
             _editQtyTxtBox.clear();
@@ -182,7 +183,7 @@ export class MyCartPage extends BasePage {
             }
         }
         productData.quantity = newQty;
-        console.log(`[INFO] changeProductQuantityTo():     New quantity of the product [${productData.title} - ${productData.priceAsString}]: ${productData.quantity}\n`);
+        Logger.info(`changeProductQuantityTo():     New quantity of the product [${productData.title} - ${productData.priceAsString}]: ${productData.quantity}\n`);
     }
 
     async verifyProductDataAndSubtotalPriceOfCart(productData: ProductData, orderedProductsData: Record<string, ProductData>): Promise<void> {
@@ -205,7 +206,7 @@ export class MyCartPage extends BasePage {
             isRemoveProductLinkVisible = await _firstRemoveProductLink.isVisible();
             // stop if current time is ahead of start time by 2 mins
             if (Math.floor(Date.now() / 1000) - startTimestampInSecs >= 2 * 60) {
-                console.log("[WARNING] emptyShoppingCart(): Exceeded 2 minutes (Max allowed time for the Empty shopping cart action)!!!\nStop the action!!!");
+                Logger.info("emptyShoppingCart(): Exceeded 2 minutes (Max allowed time for the Empty shopping cart action)!!!\nStop the action!!!");
                 break;
             }
         }

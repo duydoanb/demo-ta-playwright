@@ -1,31 +1,9 @@
 import { test } from '../../fixtures/beforeAndAfterTest';
-import { HomePage } from '../../pages/homePage';
-import { ProductPage } from '../../pages/productPage';
-import { MyCartPage } from '../../pages/myCartPage';
 import { MenuTab, ProductDepartment } from '../../data-objects/dataEnums';
-import { BrowserContext, Page } from '@playwright/test';
-import { DataUtils, FileUtils } from '../../utils/utilities';
+import { DataUtils } from '../../utils/utilities';
 import { ProductData } from '../../data-objects/productData';
 
-const fileUtils = new FileUtils();
-let userAliasToUse: string;
-let context: BrowserContext;
-let page: Page;
-
-test.beforeEach(async ({ browser }) => {
-  userAliasToUse = await fileUtils.getFreeCredentialToRunTest();
-  context = await browser.newContext({ storageState: await fileUtils.getTempStorageStateJsonPath(userAliasToUse) });
-  page = await context.newPage();
-});
-
-test.afterEach(async () => {
-  await fileUtils.releaseBeingUsedCredential(userAliasToUse);
-});
-
-test('TC 08: Verify users can clear the cart', async ({ }) => {
-  const homePage = new HomePage(page);
-  const productPage = new ProductPage(page);
-  const myCartPage = new MyCartPage(page);
+test('TC 08: Verify users can clear the cart', async ({ homePage, productPage, myCartPage }) => {
   const selectedProductNumbers: number[] = Array.from({ length: 10 }, () => DataUtils.getRandomInt(1, 6));
   const orderedProductsData: Record<string, ProductData> = {};
 

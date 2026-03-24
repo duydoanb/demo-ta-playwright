@@ -2,6 +2,7 @@ import { Page, Locator, expect } from '@playwright/test';
 import { BasePage } from './basePage';
 import { ProductShowLimit, ProductSortMode, ProductViewMode } from '../data-objects/dataEnums';
 import { DataUtils } from '../utils/utilities';
+import { Logger } from '../utils/logger';
 
 export class ProductPage extends BasePage {
     private readonly gridViewModeButton: Locator;
@@ -90,7 +91,7 @@ export class ProductPage extends BasePage {
 
     async clickAddToCartForProductNo(productNumber: number | string): Promise<void> {
         productNumber = DataUtils.convertToNumber(productNumber);
-        console.log(`[INFO] clickAddToCartForProductNo(): Adding the product number #${productNumber} - ${await this.getTitleOfProductNo(productNumber)} to cart!`);
+        Logger.info(`clickAddToCartForProductNo(): Adding the product number #${productNumber} - ${await this.getTitleOfProductNo(productNumber)} to cart!`);
         const _addToCartBtn = this.dynamicAddToCartButton.nth(productNumber - 1);
         await expect(_addToCartBtn).toBeVisible({ timeout: 10000 });
         await _addToCartBtn.scrollIntoViewIfNeeded();
@@ -116,7 +117,7 @@ export class ProductPage extends BasePage {
         for (const priceLocator of await this.productPriceField.all()) {
             prices.push(await this.getProductOriginalPrice(priceLocator));
         }
-        console.log('[INFO] getAllDisplayedProductsOriginalPrices(): All displayed products original prices: ', prices.join(', '));
+        Logger.info(`getAllDisplayedProductsOriginalPrices(): All displayed products original prices: ${prices.join(', ')}`);
         return prices;
     }
 
@@ -144,7 +145,7 @@ export class ProductPage extends BasePage {
 
         await this.page.waitForURL(`**/${slug}/**`);
         await expect(this.page.locator('h1, h2').first()).toContainText(name);
-        console.log(`[INFO] openRandomProductDetailsPage(): Opened the details page of the product [${name}]`)
+        Logger.info(`openRandomProductDetailsPage(): Opened the details page of the product [${name}]`)
         return { name, slug };
     }
 

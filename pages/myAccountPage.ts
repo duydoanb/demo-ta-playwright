@@ -3,6 +3,7 @@ import { BasePage } from './basePage';
 import { HomePage } from './homePage';
 import { expect } from '../fixtures/beforeAndAfterTest';
 import { ProductData } from '../data-objects/productData';
+import { Logger } from '../utils/logger';
 
 export class MyAccountPage extends BasePage {
     private readonly recentOrdersButton: Locator;
@@ -69,11 +70,11 @@ export class MyAccountPage extends BasePage {
     async findAndViewOrderDetailsLinkByOrderId(orderId: string): Promise<void> {
         const maxPageCheckCount = 20;
         let checkCount = 0;
-        console.log(`[INFO] findAndViewOrderDetailsLinkByOrderId(): Opening the details page of order #${orderId}`);
+        Logger.info(`findAndViewOrderDetailsLinkByOrderId(): Opening the details page of order #${orderId}`);
 
         while (true) {
             if ((await this.getCurrentOrderIdsList()).includes(Number(orderId.replace(/[^0-9]/g, "")))) {
-                console.log(`[INFO] findAndViewOrderDetailsLinkByOrderId(): Found the order #${orderId}`);
+                Logger.info(`findAndViewOrderDetailsLinkByOrderId(): Found the order #${orderId}`);
                 break;
             }
             if (await this.nextOrdersPageButton.isHidden()) {
@@ -108,7 +109,7 @@ export class MyAccountPage extends BasePage {
                     break;
                 }
             }
-            foundProduct ? console.log(`[INFO] verifyOrderDetailsTableDataIsCorrect(): The product [${productData.title} x ${productData.quantity} - ${productData.totalCostAsString}] is in the order details table!`) : console.log(`[ERROR] verifyOrderDetailsTableDataIsCorrect(): The product [${productData.title} x ${productData.quantity} - ${productData.totalCostAsString}] is NOT in the order details table!`)
+            foundProduct ? Logger.info(`verifyOrderDetailsTableDataIsCorrect(): The product [${productData.title} x ${productData.quantity} - ${productData.totalCostAsString}] is in the order details table!`) : Logger.error(`verifyOrderDetailsTableDataIsCorrect(): The product [${productData.title} x ${productData.quantity} - ${productData.totalCostAsString}] is NOT in the order details table!`)
             expect(foundProduct).toStrictEqual(true);
         }
     }
@@ -159,7 +160,7 @@ export class MyAccountPage extends BasePage {
             }
             checkCount++;
         }
-        console.log('[INFO] extractAllOrderIdsFromTheFirstPage(): Actual order IDs (as numbers): ' + allOrderIds.join(', '));
+        Logger.info('extractAllOrderIdsFromTheFirstPage(): Actual order IDs (as numbers): ' + allOrderIds.join(', '));
         return allOrderIds;
     }
 

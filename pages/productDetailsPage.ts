@@ -1,6 +1,7 @@
 import { Page, Locator, expect } from '@playwright/test';
 import { BasePage } from './basePage';
 import { DataUtils } from '../utils/utilities';
+import { Logger } from '../utils/logger';
 
 export class ProductDetailsPage extends BasePage {
     private readonly reviewsTabLink: Locator;
@@ -40,18 +41,18 @@ export class ProductDetailsPage extends BasePage {
         const parts = reviewText.split(' - ');
         const timestamp = parts.length > 1 ? parts.pop() : reviewText;
         await expect(this.reviewsTabPanel).toContainText(timestamp as string);
-        console.log(`[INFO] verifyReviewDisplayed(): PASSED - The review [${reviewText}] is displayed`)
+        Logger.info(`verifyReviewDisplayed(): PASSED - The review [${reviewText}] is displayed`)
     }
 
     async addReview(reviewText: string, rating: number = 5, timeStamp?: string): Promise<string> {
-        timeStamp = timeStamp ?? DataUtils.generateTimestampMicrosecondPrecision();
+        timeStamp = timeStamp ?? DataUtils.generateDatetimeStampMicrosecondPrecision();
         reviewText = `${reviewText} Commented at ${timeStamp}!`
         await this.openReviewsTab();
         await this.selectRating(rating);
         await this.reviewTextarea.fill(reviewText);
         await this.submitReviewButton.click();
         await this.page.waitForLoadState('networkidle');
-        console.log(`[INFO] addReview(): Added the review [${reviewText}] for the product!`);
+        Logger.info(`addReview(): Added the review [${reviewText}] for the product!`);
         return reviewText;
     }
 

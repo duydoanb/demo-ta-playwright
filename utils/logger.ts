@@ -1,0 +1,86 @@
+import test, { TestInfo } from '@playwright/test';
+import { Constants } from './constants';
+import { match } from 'assert';
+
+export type StepContext = {
+    testTitle?: string;
+    dataSetId?: string;
+    userAlias?: string;
+    projectName?: string;
+};
+
+export class Logger {
+    static info(message: string, context?: StepContext): void {
+        const prefix = context ? this.formatContext(context) : `[INFO]${this.parseContextFromConstant()}`;
+        console.log(`${prefix} ${message}`.trim());
+    }
+
+    static warn(message: string, context?: StepContext): void {
+        const prefix = context ? this.formatContext(context) : `[WARNING] ${this.parseContextFromConstant()}`;
+        console.warn(`${prefix} ${message}`.trim());
+    }
+
+    static error(message: string, context?: StepContext): void {
+        const prefix = context ? this.formatContext(context) : `[ERROR] ${this.parseContextFromConstant()}`;
+        console.error(`${prefix} ${message}`.trim());
+    }
+
+    static step(stepName: string, context?: StepContext): void {
+        this.info(`[STEP] ${stepName}`, context);
+    }
+
+    static newEmptyLine(): void {
+        console.log("\n");
+    }
+
+    static fromTestInfo(testInfo: TestInfo, overrides?: Partial<StepContext>): StepContext {
+        const dataSetId = this.getAnnotation(testInfo, 'dataset') ?? this.extractDataSetIdFromTitle(testInfo.title);
+        const userAlias = this.getAnnotation(testInfo, 'userAlias');
+        return {
+            testTitle: testInfo.title,
+            projectName: testInfo.project.name,
+            dataSetId,
+            userAlias,
+            ...overrides,
+        };
+    }
+
+    private static getAnnotation(testInfo: TestInfo, type: string): string | undefined {
+        return testInfo.annotations.find(a => a.type === type)?.description;
+    }
+
+    private static extractDataSetIdFromTitle(title: string): string | undefined {
+        const regexForDataSet = /((?:dataset|set|setno|data|testdata|test data|data no) #?\d+)/i;
+        const _match = title.match(regexForDataSet);
+        if (_match) {
+            return _match[1];
+        } else {
+            return undefined;
+        }
+    }
+
+    private static formatContext(context?: StepContext): string {
+        const ctx = context ?? {};
+        const chunks: string[] = [];
+        if (ctx.projectName) chunks.push(`[PROJECT:${ctx.projectName}]`);
+        if (ctx.testTitle) chunks.push(`[${ctx.testTitle}]`);
+        if (ctx.dataSetId) chunks.push(`[${ctx.dataSetId}]`);
+        if (ctx.userAlias) chunks.push(`[${ctx.userAlias}]`);
+        return chunks.join(' ');
+    }
+
+    private static parseContextFromConstant(): string {
+        const _ctx = Constants.CURRENT_STEP_CONTEXT;
+        const chunks: string[] = [];
+        // TC ID
+        chunks.push(_ctx.title.split(": ")[0].replaceAll(" ", "").trim().toUpperCase());
+        // Data set count if any
+        const dataSetNo = this.extractDataSetIdFromTitle(_ctx.title);
+        if (dataSetNo) {
+            chunks.push(dataSetNo);
+        }
+        chunks.push(`${this.getAnnotation(_ctx, 'userAlias') ?? "user N/A"}`);
+        chunks.push(`worker ${_ctx.workerIndex}`);
+        return `[${chunks.join(" ")}]`;
+    }
+}
