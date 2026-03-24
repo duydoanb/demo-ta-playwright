@@ -29,7 +29,7 @@ export default defineConfig({
   /* Set retry */
   retries: process.env.CI ? 4 : (process.env.DEBUG_MODE === 'true') ? 0 : 2,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? (process.env.USE_TEST_SHARDING === 'true') ? 1 : 8 : 5,
+  workers: process.env.CI ? (process.env.USE_TEST_SHARDING === 'true') ? 1 : 5 : 5,
   maxFailures: process.env.CI ? 5 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: process.env.CI
