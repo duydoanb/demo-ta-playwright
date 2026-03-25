@@ -9,7 +9,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 const suiteStartTimeStamp = DataUtils.getCurrentLocalISOTimeStamp();
-process.env.TEST_RUN_ID = `local-${suiteStartTimeStamp}`;
+process.env.TEST_RUN_ID = `${process.env.CI ? "CI" : "local"}-${suiteStartTimeStamp}`;
 // console.log(`[PW config.ts file] process.env.TEST_RUN_ID = ${process.env.TEST_RUN_ID}`);
 
 /**
@@ -27,9 +27,9 @@ export default defineConfig({
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Set retry */
-  retries: process.env.CI ? 4 : (process.env.DEBUG_MODE === 'true') ? 0 : 2,
+  retries: process.env.CI ? 4 : (process.env.DEBUG_MODE === 'true') ? 2 : 0,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? (process.env.USE_TEST_SHARDING === 'true') ? 1 : 5 : 5,
+  workers: process.env.CI ? (process.env.USE_TEST_SHARDING === 'true') ? 1 : 5 : 3,
   maxFailures: process.env.CI ? 5 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: process.env.CI
@@ -40,6 +40,7 @@ export default defineConfig({
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
     baseURL: process.env.BASE_URL!,
+    testIdAttribute: 'data-id',
 
     actionTimeout: 15 * 1000,
     navigationTimeout: 25 * 1000,

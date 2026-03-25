@@ -13,10 +13,10 @@ export class MyAccountPage extends BasePage {
 
     private readonly nextOrdersPageButton: Locator;
     private readonly previousOrdersPageButton: Locator;
-    private readonly orderIdInOrdersTable: Locator;
+    private readonly dynamicOrderIdInOrdersTable: Locator;
 
     // For Order details
-    private readonly orderDetailsLinkByOrderIdXpath: (orderId: string) => string;
+    private readonly orderDetailsLinkByOrderId: (orderId: string) => Locator;
     private readonly dynamicProductNameWithQty: Locator;
     private readonly dynamicProductTotalCost: Locator;
     private readonly subtotalAmountOfOrderText: Locator;
@@ -30,13 +30,13 @@ export class MyAccountPage extends BasePage {
 
         this.nextOrdersPageButton = page.getByRole('link', { name: 'NEXT' });
         this.previousOrdersPageButton = page.getByRole('link', { name: 'PREVIOUS' });
-        this.orderIdInOrdersTable = page.locator("//tbody/tr/td[1]/a");
+        this.dynamicOrderIdInOrdersTable = page.locator("td[data-title='Order']").locator('a');
+        this.orderDetailsLinkByOrderId = (_orderId: string): Locator => page.locator("td[data-title='Order']").locator(`a:has-text('${_orderId}')`);
 
         // For Order details
-        this.orderDetailsLinkByOrderIdXpath = (_orderId: string) => `//tbody/tr/td[1]/a[contains(@href, '${_orderId}') and contains(text(),'${_orderId}')]`;
-        this.dynamicProductNameWithQty = page.locator("xpath=//table[contains(@class,'order_details')]/tbody//td[contains(@class,'product-name')]");
-        this.dynamicProductTotalCost = page.locator("xpath=//table[contains(@class,'order_details')]/tbody//td[contains(@class,'product-total')]//bdi");
-        this.subtotalAmountOfOrderText = page.locator("xpath=//table[contains(@class,'order_details')]/tfoot/tr[th[contains(text(),'Subtotal')]]//span[contains(@class,'amount')]");
+        this.dynamicProductNameWithQty = page.locator("td.product-name");
+        this.dynamicProductTotalCost = page.locator("td.product-total").locator("bdi");
+        this.subtotalAmountOfOrderText = page.locator("tr:has(th:has-text('Subtotal:'))").locator("span[class*='Price-amount amount']");
     }
 
     async logout(): Promise<void> {
@@ -87,7 +87,7 @@ export class MyAccountPage extends BasePage {
             checkCount++;
         }
 
-        await this.page.locator(this.orderDetailsLinkByOrderIdXpath(orderId)).click();
+        await this.orderDetailsLinkByOrderId(orderId).click();
         await this.page.waitForLoadState("networkidle");
     }
 
@@ -131,7 +131,7 @@ export class MyAccountPage extends BasePage {
 
     async getCurrentOrderIdsList(): Promise<number[]> {
         const orderIds: number[] = [];
-        for (const idCell of await this.orderIdInOrdersTable.all()) {
+        for (const idCell of await this.dynamicOrderIdInOrdersTable.all()) {
             const tempOrderId: string | null = await idCell.textContent();
             if (tempOrderId) {
                 orderIds.push(Number(tempOrderId.replace(/\D/g, '').trim()));

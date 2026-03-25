@@ -17,12 +17,12 @@ export class MyCartPage extends BasePage {
     private readonly dynamicIncreaseProductQuantityBtn: Locator;
 
     // Exact element located by product name
-    private readonly productRowByProductNameXpath: (productName: string) => string;
-    private readonly removeProductLinkByProductNameXpath: (productName: string) => string;
-    private readonly productQuantityTextBoxByProductNameXpath: (productName: string) => string;
-    private readonly decreaseProductQuantityBtnByProductNameXpath: (productName: string) => string;
-    private readonly increaseProductQuantityBtnByProductNameXpath: (productName: string) => string;
-    private readonly subTotalTextOfProductByProductNameXpath: (productName: string) => string;
+    private readonly productRowByProductName: (productName: string) => Locator;
+    private readonly removeProductLinkByProductName: (productName: string) => Locator;
+    private readonly productQuantityTextBoxByProductName: (productName: string) => Locator;
+    private readonly decreaseProductQuantityBtnByProductName: (productName: string) => Locator;
+    private readonly increaseProductQuantityBtnByProductName: (productName: string) => Locator;
+    private readonly subTotalTextOfProductByProductName: (productName: string) => Locator;
 
     // General elements
     private readonly cartSubTotalPriceText: Locator;
@@ -35,29 +35,30 @@ export class MyCartPage extends BasePage {
 
     constructor(page: Page) {
         super(page);
-        this.selectedProductsTable = page.locator("xpath=//div[@class='table-responsive']//table");
-        this.formProcessingFrame = page.locator("xpath=//form[@class='woocommerce-cart-form processing']");
+        this.selectedProductsTable = page.locator("form").locator('table');
+        this.formProcessingFrame = page.locator("form.woocommerce-cart-form.processing");
+
         // Dynamic locators to loop elements
         this.proceedToCheckoutButton = page.getByRole('link', { name: 'Proceed to checkout' });
-        this.dynamicProductTitleLink = page.locator("xpath=//div[@class='table-responsive']//tbody/tr/td[@class='product-details']//a[@class='product-title']");
-        this.dynamicProductPriceText = page.locator("xpath=//div[@class='table-responsive']//tbody/tr/td[@class='product-price']//bdi");
-        this.dynamicProductSubTotalText = page.locator("xpath=//div[@class='table-responsive']//tbody/tr/td[@class='product-subtotal']//bdi");
-        this.dynamicProductQuantityTextbox = page.locator("xpath=//div[@class='table-responsive']//tbody/tr/td[@class='product-quantity']//input");
-        this.dynamicDecreaseProductQuantityBtn = page.locator("xpath=//div[@class='table-responsive']//tbody/tr/td[@class='product-quantity']//span[@class='minus']");
-        this.dynamicIncreaseProductQuantityBtn = page.locator("xpath=//div[@class='table-responsive']//tbody/tr/td[@class='product-quantity']//span[@class='plus']");
+        this.dynamicProductTitleLink = page.locator('form').locator('td.product-details').locator('a.product-title');
+        this.dynamicProductPriceText = page.locator('form').locator('td.product-price').locator('bdi');
+        this.dynamicProductSubTotalText = page.locator("form").locator("td.product-subtotal").locator("bdi");
+        this.dynamicProductQuantityTextbox = page.locator('form').locator('td.product-quantity').locator('input');
+        this.dynamicDecreaseProductQuantityBtn = page.locator("form").locator("td.product-quantity").locator("span.minus");
+        this.dynamicIncreaseProductQuantityBtn = page.locator("form").locator("td.product-quantity").locator("span.plus");
 
         // Exact element located by product name
-        this.productRowByProductNameXpath = (_productName: string): string => `//div[@class='table-responsive']//tbody/tr[td[@class='product-details']//a[@class='product-title' and text()='${_productName}']]`;
-        this.removeProductLinkByProductNameXpath = (_productName: string): string => `//div[@class='table-responsive']//tbody/tr[td[@class='product-details']//a[@class='product-title' and text()='${_productName}']]//a[contains(@title,'Remove')]`;
-        this.productQuantityTextBoxByProductNameXpath = (_productName: string): string => `//div[@class='table-responsive']//tbody/tr[td[@class='product-details']//a[@class='product-title' and text()='${_productName}']]//input`;
-        this.decreaseProductQuantityBtnByProductNameXpath = (_productName: string): string => `//div[@class='table-responsive']//tbody/tr[td[@class='product-details']//a[@class='product-title' and text()='${_productName}']]//span[@class='minus']`;
-        this.increaseProductQuantityBtnByProductNameXpath = (_productName: string): string => `//div[@class='table-responsive']//tbody/tr[td[@class='product-details']//a[@class='product-title' and text()='${_productName}']]//span[@class='plus']`;
-        this.subTotalTextOfProductByProductNameXpath = (_productName: string): string => `//div[@class='table-responsive']//tbody/tr[td[@class='product-details']//a[@class='product-title' and text()='${_productName}']]//td[@class='product-subtotal']//bdi`;
+        this.productRowByProductName = (_productName: string): Locator => page.locator("form").locator(`tr:has(td.product-details a.product-title:has-text('${_productName}'))`);
+        this.removeProductLinkByProductName = (_productName: string): Locator => this.productRowByProductName(_productName).locator('a.remove-item');
+        this.productQuantityTextBoxByProductName = (_productName: string): Locator => this.productRowByProductName(_productName).locator('input.input-text.qty');
+        this.decreaseProductQuantityBtnByProductName = (_productName: string): Locator => this.productRowByProductName(_productName).locator('span.minus');
+        this.increaseProductQuantityBtnByProductName = (_productName: string): Locator => this.productRowByProductName(_productName).locator('span.plus');
+        this.subTotalTextOfProductByProductName = (_productName: string): Locator => this.productRowByProductName(_productName).locator('td.product-subtotal bdi');
 
         // General elements
-        this.cartSubTotalPriceText = page.locator("xpath=//tr[@class='cart-subtotal']//td[@data-title='Subtotal']//bdi");
-        this.cartTotalPriceText = page.locator("xpath=//td[@data-title='Total']//bdi");
-        this.dynamicRemoveProductLink = page.locator("xpath=//div[@class='table-responsive']//tbody/tr/td[@class='product-details']//a[@title='Remove this item']");
+        this.cartSubTotalPriceText = page.locator('div.cart_totals').locator("td[data-title='Subtotal']").locator('bdi');
+        this.cartTotalPriceText = page.locator('div.cart_totals').locator("td[data-title='Total']").locator('bdi');
+        this.dynamicRemoveProductLink = page.locator('form tr:has(td.product-details a.product-title) a.remove-item');
         this.cartIsEmptyHeaderText = page.getByRole('heading', { name: "YOUR SHOPPING CART IS EMPTY" });
         this.cartIsEmptyMessageText = page.getByText("We invite you to get acquainted with an assortment of our shop. Surely you can find something for yourself!");
         this.returnToShopButton = page.getByRole("link", { name: "RETURN TO SHOP" });
@@ -141,11 +142,11 @@ export class MyCartPage extends BasePage {
     }
 
     async getProductQuantityByName(productName: string): Promise<number> {
-        return Number(await this.page.locator(this.productQuantityTextBoxByProductNameXpath(productName)).getAttribute('value'));
+        return Number(await this.productQuantityTextBoxByProductName(productName).getAttribute('value'));
     }
 
     async getProductSubTotalPriceByName(productName: string): Promise<string> {
-        return await this.page.locator(this.subTotalTextOfProductByProductNameXpath(productName)).textContent() ?? `undefined sub-total price for product [${productName}]`;
+        return await this.subTotalTextOfProductByProductName(productName).textContent() ?? `undefined sub-total price for product [${productName}]`;
     }
 
     async changeProductQuantityTo(productData: ProductData, newQty: number, editUsingQtyTextbox: boolean = false): Promise<void> {
@@ -159,15 +160,15 @@ export class MyCartPage extends BasePage {
         }
         if (newQty === 0) {
             Logger.info(`changeProductQuantityTo(): Will remove the product from the cart as the new quantity is set to 0!!`);
-            await this.page.locator(this.removeProductLinkByProductNameXpath(productData.title)).click();
-            await expect(this.page.locator(this.productRowByProductNameXpath(productData.title))).toBeHidden({ timeout: 10000 });
+            await this.removeProductLinkByProductName(productData.title).click();
+            await expect(this.productRowByProductName(productData.title)).toBeHidden({ timeout: 10000 });
             productData.quantity = newQty;
             return;
         }
 
         Logger.info(`changeProductQuantityTo(): Current quantity of the product [${productData.title} - ${productData.priceAsString}]: ${productData.quantity}`);
         if (editUsingQtyTextbox) {
-            const _editQtyTxtBox = this.page.locator(this.productQuantityTextBoxByProductNameXpath(productData.title));
+            const _editQtyTxtBox = this.productQuantityTextBoxByProductName(productData.title);
             _editQtyTxtBox.clear();
             _editQtyTxtBox.fill(newQty.toString());
             _editQtyTxtBox.press('Enter');
@@ -175,19 +176,19 @@ export class MyCartPage extends BasePage {
         } else {
             for (let count = 0; count < Math.abs(newQty - productData.quantity); count++) {
                 if (newQty > productData.quantity) {
-                    this.page.locator(this.increaseProductQuantityBtnByProductNameXpath(productData.title)).click();
+                    await this.increaseProductQuantityBtnByProductName(productData.title).click();
                 } else {
-                    this.page.locator(this.decreaseProductQuantityBtnByProductNameXpath(productData.title)).click();
+                    await this.decreaseProductQuantityBtnByProductName(productData.title).click();
                 }
                 await this.waitForProductInfoToBeUpdated();
             }
         }
         productData.quantity = newQty;
-        Logger.info(`changeProductQuantityTo():     New quantity of the product [${productData.title} - ${productData.priceAsString}]: ${productData.quantity}\n`);
+        Logger.info(`changeProductQuantityTo(): New quantity of the product [${productData.title} - ${productData.priceAsString}]: ${productData.quantity}\n`);
     }
 
     async verifyProductDataAndSubtotalPriceOfCart(productData: ProductData, orderedProductsData: Record<string, ProductData>): Promise<void> {
-        await expect(await this.page.locator(this.productRowByProductNameXpath(productData.title))).toBeVisible();
+        await expect(this.productRowByProductName(productData.title)).toBeVisible();
         await expect(await this.getProductQuantityByName(productData.title)).toStrictEqual(productData.quantity);
         await expect(await this.getProductSubTotalPriceByName(productData.title)).toStrictEqual(productData.totalCostAsString);
         await expect(await this.getSubtotalPriceOfCart()).toStrictEqual(DataUtils.getTotalCostOfOrderedProductsAsPriceString(orderedProductsData));

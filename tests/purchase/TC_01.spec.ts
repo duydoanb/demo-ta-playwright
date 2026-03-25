@@ -6,8 +6,7 @@ import { DataUtils } from '../../utils/utilities';
 import { ProductData } from '../../data-objects/productData';
 import { Logger } from '../../utils/logger';
 
-const wholeDataSet: Record<string, Record<string, any>[]> = TestDataUtils.loadFullDataSet(__filename)
-const testClassName = PathUtils.getSimpleTestClassName(__filename);
+const wholeDataSet: Record<string, Record<string, any>[]> = TestDataUtils.loadFullDataSet(__filename);
 
 test.beforeEach("Empty the shopping cart before each test", async ({ homePage, myCartPage }) => {
   Logger.info(`[Before each test] Emptying the shopping cart for the current test`)

@@ -14,8 +14,8 @@ export abstract class BasePage {
         this.dismissNoticeButton = page.getByRole('link', { name: 'Dismiss' });
         this.dismissCookiesNoticeButton = page.getByRole('link', { name: 'Ok', exact: true });
         this.allDepartmentsMenu = page.getByText('All departments', { exact: true });
-        this.myAccountLink = page.locator("//div[@class='header-top']//a[contains(@href,'/my-account/')]");
-        this.cartLink = page.locator("(//div[contains(@class,'header-cart') and a[contains(@href,'/cart/')]])[1]");
+        this.myAccountLink = page.locator('.header-top').locator("a[href*='my-account']");
+        this.cartLink = page.locator("[class='header-main-wrapper ']").locator("a[href*='cart']:has(bdi)");
     }
 
     protected async dismissDataResetNotice(): Promise<void> {

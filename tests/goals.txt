@@ -22,6 +22,8 @@ Allure reporter integration --> DONE
 
 Screen capture for fail tests + video recording for tests  --> DONE
 
+Logger --> DONE
+
 Mobile emulation --> DONE
 
 Implement 10 TC --> DONE

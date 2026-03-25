@@ -42,13 +42,13 @@ export class CheckoutPage extends BasePage {
         this.phoneNumberTextbox = page.locator('#billing_phone');
         this.emailTextbox = page.locator('#billing_email');
         // Alerts
-        this.missingFirstNameAlert = page.locator("xpath=//ul[@role='alert']/li[@data-id='billing_first_name']");
-        this.missingLastNameAlert = page.locator("xpath=//ul[@role='alert']/li[@data-id='billing_last_name']");
-        this.missingAddress1Alert = page.locator("xpath=//ul[@role='alert']/li[@data-id='billing_address_1']");
-        this.missingCityAlert = page.locator("xpath=//ul[@role='alert']/li[@data-id='billing_city']");
-        this.missingPhoneNumberAlert = page.locator("xpath=//ul[@role='alert']/li[@data-id='billing_phone']");
-        this.missingPostalCodeAlert = page.locator("xpath=//ul[@role='alert']/li[@data-id='billing_postcode']");
-        this.missingEmailAlert = page.locator("xpath=//ul[@role='alert']/li[@data-id='billing_email']");
+        this.missingFirstNameAlert = page.getByTestId("billing_first_name");
+        this.missingLastNameAlert = page.getByTestId("billing_last_name");
+        this.missingAddress1Alert = page.getByTestId("billing_address_1");
+        this.missingCityAlert = page.getByTestId("billing_city");
+        this.missingPhoneNumberAlert = page.getByTestId("billing_phone");
+        this.missingPostalCodeAlert = page.getByTestId("billing_postcode");
+        this.missingEmailAlert = page.getByTestId("billing_email");
     }
 
     private async selectCountryAndStateIfAny(billingInfo: BillingInfo): Promise<void> {

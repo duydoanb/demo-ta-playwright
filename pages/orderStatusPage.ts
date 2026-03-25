@@ -20,17 +20,17 @@ export class OrderStatusPage extends BasePage {
 
     constructor(page: Page) {
         super(page);
-        this.thankYouText = page.locator("xpath=//p[text()='Thank you. Your order has been received.']");
-        this.overViewPanelOrderNumberText = page.locator("xpath=//li[contains(@class,'woocommerce-order-overview') and contains(@class,' order')]/strong");
-        this.overViewPanelEmailText = page.locator("xpath=//li[contains(@class,'woocommerce-order-overview') and contains(@class,'email')]/strong");
-        this.overViewPanelTotalText = page.locator("xpath=//li[contains(@class,'woocommerce-order-overview') and contains(@class,'total')]/strong");
-        this.overViewPanelPaymentMethodText = page.locator("xpath=//li[contains(@class,'woocommerce-order-overview') and contains(@class,'payment-method')]/strong");
+        this.thankYouText = page.getByText("Thank you. Your order has been received.");
+        this.overViewPanelOrderNumberText = page.getByRole('listitem').filter({ hasText: /Order number:/ }).getByRole("strong");
+        this.overViewPanelEmailText = page.getByRole('listitem').filter({ hasText: /Email:/ }).getByRole("strong");
+        this.overViewPanelTotalText = page.getByRole('listitem').filter({ hasText: /Total:/ }).getByRole("strong");
+        this.overViewPanelPaymentMethodText = page.getByRole('listitem').filter({ hasText: /Payment method:/ }).getByRole("strong");
 
-        this.dynamicProductNameWithQty = page.locator("xpath=//table[contains(@class,'order_details')]/tbody//td[contains(@class,'product-name')]");
-        this.dynamicProductTotalCost = page.locator("xpath=//table[contains(@class,'order_details')]/tbody//td[contains(@class,'product-total')]//bdi");
+        this.dynamicProductNameWithQty = page.locator("td.product-name");
+        this.dynamicProductTotalCost = page.locator('td.product-total').locator("bdi");
 
-        this.billingAddressHeader = page.getByRole('heading', { name: "Billing Address" });
-        this.billingAddressFrame = page.locator("xpath=//address");
+        this.billingAddressHeader = page.getByRole('heading', { level: 2, name: "Billing Address" });
+        this.billingAddressFrame = this.billingAddressHeader.locator('xpath=/..//address');
     }
 
     async extractOrderId(): Promise<string> {
