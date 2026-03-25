@@ -24,23 +24,23 @@ export class ProductPage extends BasePage {
 
     constructor(page: Page) {
         super(page);
-        this.gridViewModeButton = page.locator("xpath=//div[@class='view-switcher']/div[contains(@class,'grid')]");
-        this.productGridModeContainerFrame = page.locator("xpath=//div[@data-row-count and contains(@class,'row products') and contains(@class,'grid')]");
-        this.listViewModeButton = page.locator("xpath=//div[@class='view-switcher']/div[contains(@class,'list')]");
-        this.productListModeContainerFrame = page.locator("xpath=//div[@data-row-count and contains(@class,'row products') and contains(@class,'list')]");
+        this.gridViewModeButton = page.locator('div.switch-grid');
+        this.productGridModeContainerFrame = page.locator('div.switch-grid.switcher-active');
+        this.listViewModeButton = page.locator('div.switch-list');
+        this.productListModeContainerFrame = page.locator('div.switch-list.switcher-active');
+
         this.sortingModeDropdown = page.getByRole('combobox', { name: 'Shop order' });
-        this.productShowLimitDropdown = page.locator("xpath=//select[@name='et_per_page']");
-        this.productsResultsLoadingSpinner = page.locator("xpath=//div[@class='et-loader product-ajax loading']");
+        this.productShowLimitDropdown = page.locator('div.products-per-page').getByRole('combobox');
+        this.productsResultsLoadingSpinner = page.locator("div.et-loader.product-ajax.loading");
 
-        this.dynamicProductTitleLink = page.locator("xpath=(//div[@class='text-center product-details']/h2[@class='product-title']/a)");
-        this.dynamicAddToCartButton = page.locator(`xpath=(//div[@class='text-center product-details']/a[contains(@href,'add-to-cart')])`);
-        this.dynamicProductCurrentPriceText = page.locator("xpath=(//div[@class='text-center product-details']/span[@class='price']/*[local-name()='span' or local-name()='ins']//bdi)");
-        this.dynamicAddingProductAnimationFrame = page.locator("xpath=//div[contains(@class,'content-product adding-to-cart')]");
-
-        this.productPriceField = page.locator("xpath=//div[@class='content-product ']//span[@class='price']");
+        this.dynamicProductTitleLink = page.locator("h2.product-title").locator('a');
+        this.dynamicAddToCartButton = page.locator("div.text-center.product-details").getByRole('link', { name: /Add (.*) to your cart/ })
+        this.dynamicProductCurrentPriceText = page.locator("div.product-details").locator("span.price > :is(span, ins)").locator("bdi");
+        this.dynamicAddingProductAnimationFrame = page.locator("div.content-product.adding-to-cart");
+        this.productPriceField = page.locator("div.content-product").locator("span.price");
     }
 
-    async waitForProductsResultsToLoad(timeout: number = 6000): Promise<void> {
+    async waitForProductsResultsToLoad(timeout: number = 10000): Promise<void> {
         await this.productsResultsLoadingSpinner.waitFor({ state: 'detached', timeout: timeout });
     }
 

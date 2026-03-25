@@ -1,7 +1,15 @@
 import { MenuTab } from '../../data-objects/dataEnums';
 import { ProductData } from '../../data-objects/productData';
 import { test, expect } from '../../fixtures/beforeAndAfterTest';
+import { Logger } from '../../utils/logger';
 import { ActionUtils, DataUtils } from '../../utils/utilities';
+
+test.beforeEach("Empty the shopping cart before each test", async ({ homePage, myCartPage }) => {
+  Logger.info(`[Before each test] Emptying the shopping cart for the current test`)
+  await homePage.navigateToTestSite();
+  await homePage.clickMyCartLink();
+  await myCartPage.emptyShoppingCart();
+})
 
 test('TC 05: Verify orders appear in order history', async ({ pageWithPreparedCred, homePage, myAccountPage }) => {
   test.slow();

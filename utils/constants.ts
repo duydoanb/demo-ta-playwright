@@ -21,6 +21,7 @@ export class Constants {
 
     // Logger
     private static _stepContextForProcess: TestInfo;
+    private static _test_run_id: string;
 
     // Playwright use different processes for global-setup level and test-class level so this CANNOT be init at global-setup phase 
     // Has to be init during run-time, in each process instead
@@ -47,6 +48,12 @@ export class Constants {
         this._credential_creation_time_data_file_name = "credential_creation_time.json";
 
         this._auth_data_lifetime_threshold = 12 * 60 * 60; // Maximum is 30 * 24 hours, current is 12 hours
+
+        if (!process.env.TEST_RUN_ID) {
+            throw new Error("[FATAL] TEST_RUN_ID is not set in env variables, please set it in the playwright.config.ts file!");
+        }
+        this._test_run_id = process.env.TEST_RUN_ID;
+
         this._initialized = true;
     }
 
@@ -93,6 +100,11 @@ export class Constants {
     static get AUTH_DATA_LIFETIME_THRESHOLD(): number {
         this.initializeOnce();
         return this._auth_data_lifetime_threshold;
+    }
+
+    static get TEST_RUN_ID(): string {
+        this.initializeOnce();
+        return this._test_run_id;
     }
 
     static get CURRENT_STEP_CONTEXT(): TestInfo {

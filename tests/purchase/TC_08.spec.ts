@@ -2,6 +2,14 @@ import { test } from '../../fixtures/beforeAndAfterTest';
 import { MenuTab, ProductDepartment } from '../../data-objects/dataEnums';
 import { DataUtils } from '../../utils/utilities';
 import { ProductData } from '../../data-objects/productData';
+import { Logger } from '../../utils/logger';
+
+test.beforeEach("Empty the shopping cart before each test", async ({ homePage, myCartPage }) => {
+  Logger.info(`[Before each test] Emptying the shopping cart for the current test`)
+  await homePage.navigateToTestSite();
+  await homePage.clickMyCartLink();
+  await myCartPage.emptyShoppingCart();
+})
 
 test('TC 08: Verify users can clear the cart', async ({ homePage, productPage, myCartPage }) => {
   const selectedProductNumbers: number[] = Array.from({ length: 10 }, () => DataUtils.getRandomInt(1, 6));

@@ -19,4 +19,5 @@ node_modules/
 /allure-rp/
 /allure-report/
 /allure-reports/
+/junit-reports/
 .env

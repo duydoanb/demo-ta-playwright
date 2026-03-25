@@ -2,6 +2,14 @@ import { MenuTab } from '../../data-objects/dataEnums';
 import { ProductData } from '../../data-objects/productData';
 import { test } from '../../fixtures/beforeAndAfterTest';
 import { DataUtils } from '../../utils/utilities';
+import { Logger } from '../../utils/logger';
+
+test.beforeEach("Empty the shopping cart before each test", async ({ homePage, myCartPage }) => {
+  Logger.info(`[Before each test] Emptying the shopping cart for the current test`)
+  await homePage.navigateToTestSite();
+  await homePage.clickMyCartLink();
+  await myCartPage.emptyShoppingCart();
+})
 
 test('TC 09: Verify users can update quantity of product in cart', async ({ homePage, productPage, myCartPage }) => {
   const orderedProductsData: Record<string, ProductData> = {};

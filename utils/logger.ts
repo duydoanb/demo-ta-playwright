@@ -1,11 +1,11 @@
-import test, { TestInfo } from '@playwright/test';
+import { TestInfo } from '@playwright/test';
 import { Constants } from './constants';
-import { match } from 'assert';
 
 export type StepContext = {
     testTitle?: string;
     dataSetId?: string;
     userAlias?: string;
+    testRunId?: string;
     projectName?: string;
 };
 
@@ -41,6 +41,7 @@ export class Logger {
             projectName: testInfo.project.name,
             dataSetId,
             userAlias,
+            testRunId: Constants.TEST_RUN_ID,
             ...overrides,
         };
     }
@@ -62,19 +63,26 @@ export class Logger {
     private static formatContext(context?: StepContext): string {
         const ctx = context ?? {};
         const chunks: string[] = [];
-        if (ctx.projectName) chunks.push(`[PROJECT:${ctx.projectName}]`);
-        if (ctx.testTitle) chunks.push(`[${ctx.testTitle}]`);
-        if (ctx.dataSetId) chunks.push(`[${ctx.dataSetId}]`);
-        if (ctx.userAlias) chunks.push(`[${ctx.userAlias}]`);
+        const testRunId = ctx.testRunId ?? Constants.TEST_RUN_ID;
+        if (testRunId) chunks.push(`[RUN:${testRunId}]`);
+        if (ctx.projectName) chunks.push(`[PROJ:${ctx.projectName}]`);
+        if (ctx.testTitle) chunks.push(`[TEST:${ctx.testTitle}]`);
+        if (ctx.dataSetId) chunks.push(`[DATA:${ctx.dataSetId}]`);
+        if (ctx.userAlias) chunks.push(`[USER:${ctx.userAlias}]`);
         return chunks.join(' ');
     }
 
     private static parseContextFromConstant(): string {
         const _ctx = Constants.CURRENT_STEP_CONTEXT;
+        if (!_ctx) {
+            throw new Error("Cannot initialize the logger since the Constants.CURRENT_STEP_CONTEXT is not loaded!!!");
+        }
+
         const chunks: string[] = [];
-        // TC ID
-        chunks.push(_ctx.title.split(": ")[0].replaceAll(" ", "").trim().toUpperCase());
-        // Data set count if any
+        // chunks.push(`run ${Constants.TEST_RUN_ID}`);
+        // TC ID/title
+        chunks.push(_ctx.title?.split(": ")[0]?.trim());
+        // data set count
         const dataSetNo = this.extractDataSetIdFromTitle(_ctx.title);
         if (dataSetNo) {
             chunks.push(dataSetNo);
