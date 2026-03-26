@@ -20,11 +20,10 @@ export class LoginPage extends BasePage {
         await this.usernameTextbox.fill(credential.username);
         await this.passwordTextBox.fill(credential.password);
         await this.loginButton.click();
-
         if (goToHomePage) {
             await this.clickMenuTab(MenuTab.HOME);
-            await this.page.waitForLoadState('networkidle');
         }
+        await this.page.waitForLoadState('networkidle');
     }
 
 }

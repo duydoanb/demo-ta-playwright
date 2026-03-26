@@ -68,7 +68,7 @@ export class Logger {
         if (ctx.projectName) chunks.push(`[PROJ:${ctx.projectName}]`);
         if (ctx.testTitle) chunks.push(`[TEST:${ctx.testTitle}]`);
         if (ctx.dataSetId) chunks.push(`[DATA:${ctx.dataSetId}]`);
-        if (ctx.userAlias) chunks.push(`[USER:${ctx.userAlias}]`);
+        if (ctx.userAlias) chunks.push(`[CRED:${ctx.userAlias}]`);
         return chunks.join(' ');
     }
 
@@ -87,7 +87,7 @@ export class Logger {
         if (dataSetNo) {
             chunks.push(dataSetNo);
         }
-        chunks.push(`${this.getAnnotation(_ctx, 'userAlias') ?? "user N/A"}`);
+        chunks.push(`${this.getAnnotation(_ctx, 'userAlias') ?? "cred N/A"}`);
         chunks.push(`worker ${_ctx.workerIndex}`);
         return `[${chunks.join(" ")}]`;
     }

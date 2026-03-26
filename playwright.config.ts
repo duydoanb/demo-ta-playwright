@@ -40,10 +40,9 @@ export default defineConfig({
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
     baseURL: process.env.BASE_URL!,
+    actionTimeout: 20 * 1000,
+    navigationTimeout: 30 * 1000,
     testIdAttribute: 'data-id',
-
-    actionTimeout: 15 * 1000,
-    navigationTimeout: 25 * 1000,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-all-retries',

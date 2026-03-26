@@ -5,6 +5,7 @@
 /.playwright-mcp/
 /specs/
 *seed*.spec.ts
+/.playwright-cli/
 
 # Playwright
 /.temp-storage-state-data/

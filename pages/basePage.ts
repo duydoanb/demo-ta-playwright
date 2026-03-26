@@ -1,9 +1,11 @@
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator, expect } from '@playwright/test';
 import { MenuTab, ProductDepartment } from '../data-objects/dataEnums';
 
 export abstract class BasePage {
     protected readonly page: Page;
     private readonly allDepartmentsMenu: Locator;
+    private readonly departmentLinkByName: (department: ProductDepartment) => Locator;
+    private readonly menuTabByName: (tab: MenuTab) => Locator;
     private readonly dismissCookiesNoticeButton: Locator;
     private readonly dismissNoticeButton: Locator;
     private readonly myAccountLink: Locator;
@@ -16,6 +18,8 @@ export abstract class BasePage {
         this.allDepartmentsMenu = page.getByText('All departments', { exact: true });
         this.myAccountLink = page.locator('.header-top').locator("a[href*='my-account']");
         this.cartLink = page.locator("[class='header-main-wrapper ']").locator("a[href*='cart']:has(bdi)");
+        this.departmentLinkByName = (_department: ProductDepartment): Locator => page.getByRole('link', { name: _department.getFullName() }).first();
+        this.menuTabByName = (_tab: MenuTab): Locator => page.locator("#menu-main-menu-1").locator(`a:has-text('${_tab.getFullName()}')`);
     }
 
     protected async dismissDataResetNotice(): Promise<void> {
@@ -31,7 +35,10 @@ export abstract class BasePage {
     }
 
     async navigateToTestSite(dismissDataResetNotice: boolean = true, dismissCookiesNotice: boolean = true): Promise<void> {
-        await this.page.goto('', { waitUntil: 'networkidle' });
+        await this.page.goto('');
+        await expect(this.allDepartmentsMenu).toBeVisible();
+        await expect(this.myAccountLink).toBeVisible();
+        await expect(this.cartLink).toBeVisible();
 
         if (dismissDataResetNotice) {
             await this.dismissDataResetNotice();
@@ -43,7 +50,7 @@ export abstract class BasePage {
     }
 
     async clickMenuTab(tabName: MenuTab): Promise<void> {
-        await this.page.locator(`xpath=//ul[@id='menu-main-menu-1']/li/a[text()='${tabName.getFullName()}']`).click();
+        await this.menuTabByName(tabName).click();
         await this.page.waitForLoadState('networkidle');
     }
 
@@ -66,7 +73,6 @@ export abstract class BasePage {
 
     async selectDepartment(departmentName: ProductDepartment): Promise<void> {
         await this.expandAllDepartmentsMenu();
-        const departmentLink = this.page.getByRole('link', { name: departmentName.getFullName() }).first();
-        await departmentLink.click();
+        await this.departmentLinkByName(departmentName).click();
     }
 }
