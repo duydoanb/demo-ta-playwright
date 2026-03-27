@@ -6,6 +6,8 @@ import { Logger } from '../utils/logger';
 export class ProductDetailsPage extends BasePage {
     private readonly reviewsTabLink: Locator;
     private readonly reviewsTabPanel: Locator;
+    private readonly reviewItems: Locator;
+    private readonly reviewItemByText: (reviewText: string) => Locator;
     private readonly dynamicRatingStarsOption: Locator;
     private readonly reviewTextarea: Locator;
     private readonly submitReviewButton: Locator;
@@ -14,6 +16,8 @@ export class ProductDetailsPage extends BasePage {
         super(page);
         this.reviewsTabLink = page.getByRole('link', { name: /Reviews/i }).first();
         this.reviewsTabPanel = page.locator('#reviews');
+        this.reviewItems = page.locator('#reviews #comments li.review, #reviews #comments li');
+        this.reviewItemByText = (reviewText: string): Locator => this.reviewItems.filter({ has: page.locator('.description', { hasText: reviewText }) });
         this.dynamicRatingStarsOption = page.locator("p.stars").getByRole('link');
         this.reviewTextarea = page.getByLabel(/Your review/);
         this.submitReviewButton = page.getByRole('button', { name: 'Submit' });
@@ -36,14 +40,15 @@ export class ProductDetailsPage extends BasePage {
 
     async verifyReviewDisplayed(reviewText: string): Promise<void> {
         await this.openReviewsTab();
-        const parts = reviewText.split(' - ');
-        const timestamp = parts.length > 1 ? parts.pop() : reviewText;
-        await expect(this.reviewsTabPanel).toContainText(timestamp as string);
-        Logger.info(`verifyReviewDisplayed(): PASSED - The review [${reviewText}] is displayed`)
+        const matchingReview = this.reviewItemByText(reviewText);
+        await expect(matchingReview).toHaveCount(1);
+        await expect(matchingReview.nth(0)).toBeVisible();
+        await expect(matchingReview.nth(0)).toContainText(reviewText);
+        Logger.info(`verifyReviewDisplayed(): PASSED - The review [${reviewText}] is displayed`);
     }
 
     async addReview(reviewText: string, rating: number = 5, timeStamp?: string): Promise<string> {
-        timeStamp = timeStamp ?? DataUtils.generateDatetimeStampMicrosecondPrecision();
+        timeStamp = timeStamp ?? DataUtils.getCurrentLocalISOTimeStamp(true);
         reviewText = `${reviewText} Commented at ${timeStamp}!`
         await this.openReviewsTab();
         await this.selectRating(rating);

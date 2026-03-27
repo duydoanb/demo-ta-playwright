@@ -45,6 +45,14 @@ export class MyAccountPage extends BasePage {
         await expect(await new HomePage(this.page).isLoginLinkVisible()).toStrictEqual(true);
     }
 
+    async verifyLogoutLinkIsHidden(): Promise<void> {
+        await expect(this.logoutButton).toBeHidden();
+    }
+
+    async verifyLogoutLinkIsVisible(): Promise<void> {
+        await expect(this.logoutButton).toBeVisible();
+    }
+
     async clickRecentOrdersButton(): Promise<void> {
         await this.recentOrdersButton.click();
         await this.page.waitForLoadState('networkidle');

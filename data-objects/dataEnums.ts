@@ -213,3 +213,24 @@ export class CredentialUsageStatus {
 
     toString(): string { return this.getFullName(); }
 }
+
+export class ScrollDirection {
+    static readonly UP = new ScrollDirection('UP');
+    static readonly DOWN = new ScrollDirection('DOWN');
+    static readonly LEFT = new ScrollDirection('LEFT');
+    static readonly RIGHT = new ScrollDirection('RIGHT');
+
+    private constructor(
+        private readonly fullName: string,
+    ) { }
+
+    static fromName(name: string): ScrollDirection {
+        return Object.values(this).find(
+            (direction) => direction instanceof ScrollDirection && direction.fullName.toUpperCase() === name.toUpperCase()
+        );
+    }
+
+    getFullName(): string {
+        return this.fullName;
+    }
+}
