@@ -21,6 +21,12 @@ export class ProductPage extends BasePage {
 
     // General locator that matches multiple elements
     private readonly productPriceField: Locator;
+    private readonly dynamicProductCard: Locator;
+    private readonly productThumbnailByIndex: (index: number | string) => Locator;
+    private readonly openDetailsPageThumbnailByProductIndex: (index: number | string) => Locator;
+    private readonly addToCartThumbnailByProductIndex: (index: number | string) => Locator;
+    private readonly addToWishListThumbnailByProductIndex: (index: number | string) => Locator;
+
 
     constructor(page: Page) {
         super(page);
@@ -38,6 +44,11 @@ export class ProductPage extends BasePage {
         this.dynamicProductCurrentPriceText = page.locator("div.product-details").locator("span.price > :is(span, ins)").locator("bdi");
         this.dynamicAddingProductAnimationFrame = page.locator("div.content-product.adding-to-cart");
         this.productPriceField = page.locator("div.content-product").locator("span.price");
+        this.dynamicProductCard = page.locator("div.content-product");
+        this.productThumbnailByIndex = (_index: number | string): Locator => this.dynamicProductCard.nth(DataUtils.convertToNumber(_index)).locator("div.product-image-wrapper");
+        this.openDetailsPageThumbnailByProductIndex = (_index: number | string): Locator => this.productThumbnailByIndex(_index).locator("span.show-quickly");
+        this.addToCartThumbnailByProductIndex = (_index: number | string): Locator => this.productThumbnailByIndex(_index).locator("a.add_to_cart_button");
+        this.addToWishListThumbnailByProductIndex = (_index: number | string): Locator => this.productThumbnailByIndex(_index).locator("a.add_to_wishlist");
     }
 
     async waitForProductsResultsToLoad(timeout: number = 10000): Promise<void> {
@@ -147,6 +158,33 @@ export class ProductPage extends BasePage {
         await expect(this.page.locator('h1, h2').first()).toContainText(name);
         Logger.info(`openRandomProductDetailsPage(): Opened the details page of the product [${name}]`)
         return { name, slug };
+    }
+
+    async verifyProductActionThumbnailsAndTheirPurpose(productIndex: number): Promise<void> {
+        const details = this.openDetailsPageThumbnailByProductIndex(productIndex);
+        const addToCart = this.addToCartThumbnailByProductIndex(productIndex);
+        const addToWishlist = this.addToWishListThumbnailByProductIndex(productIndex);
+        await addToWishlist.scrollIntoViewIfNeeded();
+        await this.scrollByAmount(100);
+
+        await details.hover();
+        await expect(details).toBeVisible();
+        // await expect(details).toHaveAttribute("href", /\/product\//);
+
+        await addToCart.hover();
+        await expect(addToCart).toBeVisible();
+        await expect(addToCart).toHaveAttribute("href", /add-to-cart=/);
+
+        await addToWishlist.hover();
+        await expect(addToWishlist).toBeVisible();
+        await expect(addToWishlist).toHaveAttribute("href", /add_to_wishlist=/);
+        Logger.info(`verifyProductActionThumbnailsAndTheirPurpose(): PASSED - All 3 action thumbnails of the product [${await this.getTitleOfProductNo(productIndex + 1)}] are visible`)
+    }
+
+    async verifyProductsHaveThreeActionThumbnailsAndCorrectPurposes(): Promise<void> {
+        for (let idx = 0; idx < await this.dynamicProductCard.count(); idx++) {
+            await this.verifyProductActionThumbnailsAndTheirPurpose(idx);
+        }
     }
 
 }

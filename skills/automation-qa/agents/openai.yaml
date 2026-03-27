@@ -1,0 +1,4 @@
+interface:
+  display_name: "Automation QA"
+  short_description: "Automated QA tests and CI workflows"
+  default_prompt: "Use -qa to build or improve automated QA tests."

@@ -1,5 +1,6 @@
 import { TestInfo } from '@playwright/test';
 import { Constants } from './constants';
+import { DataUtils } from './utilities';
 
 export type StepContext = {
     testTitle?: string;
@@ -12,17 +13,17 @@ export type StepContext = {
 export class Logger {
     static info(message: string, context?: StepContext): void {
         const prefix = context ? this.formatContext(context) : `[INFO]${this.parseContextFromConstant()}`;
-        console.log(`${prefix} ${message}`.trim());
+        console.log(`${DataUtils.getCurrentLocalISOTimeStamp()} ${prefix} ${message}`.trim());
     }
 
     static warn(message: string, context?: StepContext): void {
         const prefix = context ? this.formatContext(context) : `[WARNING] ${this.parseContextFromConstant()}`;
-        console.warn(`${prefix} ${message}`.trim());
+        console.warn(`${DataUtils.getCurrentLocalISOTimeStamp()} ${prefix} ${message}`.trim());
     }
 
     static error(message: string, context?: StepContext): void {
         const prefix = context ? this.formatContext(context) : `[ERROR] ${this.parseContextFromConstant()}`;
-        console.error(`${prefix} ${message}`.trim());
+        console.error(`${DataUtils.getCurrentLocalISOTimeStamp()} ${prefix} ${message}`.trim());
     }
 
     static step(stepName: string, context?: StepContext): void {
@@ -68,7 +69,7 @@ export class Logger {
         if (ctx.projectName) chunks.push(`[PROJ:${ctx.projectName}]`);
         if (ctx.testTitle) chunks.push(`[TEST:${ctx.testTitle}]`);
         if (ctx.dataSetId) chunks.push(`[DATA:${ctx.dataSetId}]`);
-        if (ctx.userAlias) chunks.push(`[USER:${ctx.userAlias}]`);
+        if (ctx.userAlias) chunks.push(`[CRED:${ctx.userAlias}]`);
         return chunks.join(' ');
     }
 
@@ -87,8 +88,8 @@ export class Logger {
         if (dataSetNo) {
             chunks.push(dataSetNo);
         }
-        chunks.push(`${this.getAnnotation(_ctx, 'userAlias') ?? "user N/A"}`);
-        chunks.push(`worker ${_ctx.workerIndex}`);
+        chunks.push(`${this.getAnnotation(_ctx, 'userAlias') ?? "cred N/A"}`);
+        chunks.push(`worker${_ctx.workerIndex}`);
         return `[${chunks.join(" ")}]`;
     }
 }

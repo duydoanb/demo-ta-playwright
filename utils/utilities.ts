@@ -30,16 +30,28 @@ export async function sleep(timeoutInMicrosecs: number) {
 
 export class DataUtils {
 
-    static getCurrentLocalISOTimeStamp(): string {
-        const tzOffset = new Date().getTimezoneOffset() * 60000;
-        const localISOTime = new Date(Date.now() - tzOffset).toISOString().split('.')[0].replace(/[:]/g, '-');
-        return localISOTime;
-    }
-
-    static generateDatetimeStampMicrosecondPrecision(): string {
+    static getCurrentLocalISOTimeStamp(returnRealISOFormat: boolean = true): string {
         const now = new Date();
-        const localTime = new Date(now.getTime() + (7 * 60 * 60 * 1000));
-        return localTime.toISOString().slice(0, 23);
+        const offsetMinutes = -now.getTimezoneOffset(); // Invert to get real offset
+        const absOffset = Math.abs(offsetMinutes);
+
+        // Format the offset as +HHMM or -HHMM
+        const sign = offsetMinutes >= 0 ? "+" : "-";
+        const hours = Math.floor(absOffset / 60).toString().padStart(2, '0');
+        const minutes = (absOffset % 60).toString().padStart(2, '0');
+        const offsetStr = `${sign}${hours}${minutes}`;
+
+        // Adjust date to local time for the ISO string base
+        const tzOffsetMs = now.getTimezoneOffset() * 60000;
+        const localISOTime = new Date(Date.now() - tzOffsetMs).toISOString();
+
+        if (returnRealISOFormat) {
+            // Result: 2026-03-27T14:19:39.308+0700
+            return localISOTime.replace("Z", "") + offsetStr;
+        } else {
+            // Result: 2026-03-27T14-19-39
+            return localISOTime.split('.')[0].replace(/:/g, '-');
+        }
     }
 
     static generateUnixTimeStamp(setPrecisionToSecond: boolean = false): number {
