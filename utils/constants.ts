@@ -5,6 +5,7 @@ import { TestInfo } from "@playwright/test";
 
 export class Constants {
     private static _initialized = false;
+    private static _baseURL: string;
     private static _loginURL: string;
 
     private static _validCredential_1: Credential;
@@ -12,7 +13,8 @@ export class Constants {
     private static _testClassSetupTeardownInstance: TestClassSetupAndTearDown;
 
     private static _temp_login_state_file_path: (userAlias: string) => string;
-    private static _temp_storage_state_data_dir_path: string;
+    private static _temp_storage_state_dir_path: string;
+    private static _temp_storage_state_auth_data_dir_path: string;
     private static _credential_usage_status_file_name: string;
     private static _credential_creation_time_data_file_name: string;
 
@@ -31,7 +33,11 @@ export class Constants {
         }
         console.log("Initializing global constants for process!");
 
-        this._loginURL = `${process.env.BASE_URL}/my-account/`
+        if (!process.env.BASE_URL) {
+            throw new Error("[FATAL] BASE_URL is not set in env variables, please add it!");
+        }
+        this._baseURL = process.env.BASE_URL;
+        this._loginURL = `${this._baseURL}/my-account/`
         this._validCredential_1 = new Credential({
             username: process.env.VALID_USERNAME_1 ?? "undefined username 1",
             password: process.env.VALID_PASSWORD_1 ?? "undefined password"
@@ -42,8 +48,9 @@ export class Constants {
         }
         this._allValidCredentials = JSON.parse(process.env.VALID_CREDENTIALS);
         this._testClassSetupTeardownInstance = new TestClassSetupAndTearDown();
+        this._temp_storage_state_dir_path = path.join(process.cwd(), '.temp-storage-state-data');
         this._temp_login_state_file_path = (_userAlias: string): string => `.temp-storage-state-data/.auth/${_userAlias}.json`;
-        this._temp_storage_state_data_dir_path = path.join(process.cwd(), '.temp-storage-state-data', '.auth');
+        this._temp_storage_state_auth_data_dir_path = path.join(this._temp_storage_state_dir_path, '.auth');
         this._credential_usage_status_file_name = "credential_usage_status.json";
         this._credential_creation_time_data_file_name = "credential_creation_time.json";
 
@@ -55,6 +62,11 @@ export class Constants {
         this._test_run_id = process.env.TEST_RUN_ID;
 
         this._initialized = true;
+    }
+
+    static get BASE_URL(): string {
+        this.initializeOnce();
+        return this._baseURL;
     }
 
     static get LOGIN_URL(): string {
@@ -84,7 +96,12 @@ export class Constants {
 
     static get TEMP_STORAGE_STATE_DIR_PATH(): string {
         this.initializeOnce();
-        return this._temp_storage_state_data_dir_path;
+        return this._temp_storage_state_dir_path;
+    }
+
+    static get TEMP_STORAGE_STATE_AUTH_DATA_DIR_PATH(): string {
+        this.initializeOnce();
+        return this._temp_storage_state_auth_data_dir_path;
     }
 
     static get CREDENTIAL_USAGE_STATUS_FILE_NAME(): string {

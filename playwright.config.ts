@@ -12,7 +12,6 @@ dotenv.config({ path: path.resolve(__dirname, '.env') });
 const isCICD = process.env.CI ?? false;
 const suiteStartTimeStamp = DataUtils.getCurrentLocalISOTimeStamp(false);
 process.env.TEST_RUN_ID = `${isCICD ? "CI" : "local"}-${suiteStartTimeStamp}`;
-// console.log(`[PW config.ts file] process.env.TEST_RUN_ID = ${process.env.TEST_RUN_ID}`);
 const inDebugMode: boolean = process.env.DEBUG_MODE === 'true';
 
 /**
@@ -30,15 +29,15 @@ export default defineConfig({
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Set retry */
-  retries: isCICD ? 4 : (inDebugMode) ? 2 : 0,
+  retries: isCICD ? 4 : (inDebugMode) ? 0 : 2,
   /* Opt out of parallel tests on CI. */
-  workers: isCICD ? (process.env.USE_TEST_SHARDING === 'true') ? 1 : 5 : 3,
+  workers: isCICD ? ((process.env.USE_TEST_SHARDING === 'true') ? 1 : 5) : 3,
   maxFailures: isCICD ? 5 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: isCICD
     ? [['blob'], ['html'], ['allure-playwright', { detail: true, resultsDir: `allure-results/${process.env.TEST_RUN_ID}/`, suiteTitle: true }]]
-    : [['html', { open: 'on-failure' }], ['list'], ['allure-playwright', { detail: true, resultsDir: `allure-results/${process.env.TEST_RUN_ID}/`, suiteTitle: true }], ['junit', { outputFile: `junit-reports/${process.env.TEST_RUN_ID}/junit-results.xml` }]],
-  preserveOutput: 'failures-only',
+    : [['html', { open: 'on-failure', outputFolder: `playwright-report-archived/${process.env.TEST_RUN_ID}/` }], ['list'], ['allure-playwright', { detail: true, resultsDir: `allure-results/${process.env.TEST_RUN_ID}/`, suiteTitle: true }], ['junit', { outputFile: `junit-reports/${process.env.TEST_RUN_ID}/junit-results.xml` }]],
+  preserveOutput: 'always',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
@@ -48,7 +47,7 @@ export default defineConfig({
     testIdAttribute: 'data-id',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-all-retries',
+    trace: 'retain-on-first-failure',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
 
@@ -66,22 +65,22 @@ export default defineConfig({
 
   /* Configure projects for major browsers */
   projects: [
-    { name: 'setup authentication', testMatch: /test-setup\/auth.setup\.ts/ },
+    { name: 'setup_authentication', testMatch: /test-setup\/auth.setup\.ts/ },
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
-      dependencies: ['setup authentication'],
+      dependencies: ['setup_authentication'],
     },
-    // {
-    //   name: 'firefox',
-    //   use: { ...devices['Desktop Firefox'], },
-    //   dependencies: ['setup authentication'],
-    // },
-    // {
-    //   name: 'webkit',
-    //   use: { ...devices['Desktop Safari'] },
-    //   dependencies: ['setup authentication'],
-    // },
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'], },
+      dependencies: ['setup_authentication'],
+    },
+    {
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] },
+      dependencies: ['setup_authentication'],
+    },
 
     /* Test against mobile viewports. */
     // {
@@ -100,7 +99,7 @@ export default defineConfig({
     //     ...devices['Desktop Edge'],
     //     channel: 'msedge'
     //   },
-    //   dependencies: ['setup authentication'],
+    //   dependencies: ['setup_authentication'],
     // },
     // {
     //   name: 'Google Chrome',
@@ -108,7 +107,7 @@ export default defineConfig({
     //     ...devices['Desktop Chrome'],
     //     channel: 'chrome'
     //   },
-    //   dependencies: ['setup authentication'],
+    //   dependencies: ['setup_authentication'],
     // },
   ],
 

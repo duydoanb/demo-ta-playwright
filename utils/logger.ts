@@ -12,13 +12,18 @@ export type StepContext = {
 
 export class Logger {
     static info(message: string, context?: StepContext): void {
-        const prefix = context ? this.formatContext(context) : `[INFO]${this.parseContextFromConstant()}`;
+        const prefix = context ? this.formatContext(context) : `[INFO] ${this.parseContextFromConstant()}`;
         console.log(`${DataUtils.getCurrentLocalISOTimeStamp()} ${prefix} ${message}`.trim());
     }
 
     static warn(message: string, context?: StepContext): void {
         const prefix = context ? this.formatContext(context) : `[WARNING] ${this.parseContextFromConstant()}`;
         console.warn(`${DataUtils.getCurrentLocalISOTimeStamp()} ${prefix} ${message}`.trim());
+    }
+
+    static debug(message: string, context?: StepContext): void {
+        const prefix = context ? this.formatContext(context) : `[DEBUG] ${this.parseContextFromConstant()}`;
+        console.debug(`${DataUtils.getCurrentLocalISOTimeStamp()} ${prefix} ${message}`.trim());
     }
 
     static error(message: string, context?: StepContext): void {
@@ -74,22 +79,28 @@ export class Logger {
     }
 
     private static parseContextFromConstant(): string {
+        const chunks: string[] = [];
         const _ctx = Constants.CURRENT_STEP_CONTEXT;
         if (!_ctx) {
-            throw new Error("Cannot initialize the logger since the Constants.CURRENT_STEP_CONTEXT is not loaded!!!");
+            // throw new Error("Cannot initialize the logger since the Constants.CURRENT_STEP_CONTEXT is not loaded!!!");
+            // chunks.push("Tile N/A");
+            // chunks.push("cred N/A");
+            // chunks.push("worker N/A");
+            // return `[${chunks.join(" ")}]`;
+            return "";
+        } else {
+            // chunks.push(`run ${Constants.TEST_RUN_ID}`);
+            // TC ID/title
+            const _title = _ctx.title?.includes(": ") ? _ctx.title?.split(": ")[0]?.trim().replace(" ", "") : _ctx.title;
+            chunks.push(_title);
+            // data set count
+            const dataSetNo = this.extractDataSetIdFromTitle(_ctx.title);
+            if (dataSetNo) {
+                chunks.push(dataSetNo);
+            }
+            chunks.push(`${this.getAnnotation(_ctx, 'userAlias') ?? "cred N/A"}`);
+            chunks.push(`worker${_ctx.workerIndex}`);
+            return `[${_ctx.project.name}][${chunks.join(" ")}]`;
         }
-
-        const chunks: string[] = [];
-        // chunks.push(`run ${Constants.TEST_RUN_ID}`);
-        // TC ID/title
-        chunks.push(_ctx.title?.split(": ")[0]?.trim());
-        // data set count
-        const dataSetNo = this.extractDataSetIdFromTitle(_ctx.title);
-        if (dataSetNo) {
-            chunks.push(dataSetNo);
-        }
-        chunks.push(`${this.getAnnotation(_ctx, 'userAlias') ?? "cred N/A"}`);
-        chunks.push(`worker${_ctx.workerIndex}`);
-        return `[${chunks.join(" ")}]`;
     }
 }

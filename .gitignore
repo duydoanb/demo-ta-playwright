@@ -6,6 +6,7 @@
 /specs/
 *seed*.spec.ts
 /.playwright-cli/
+/playwright-report-archived/
 
 # Playwright
 /.temp-storage-state-data/

@@ -146,7 +146,7 @@ export class FileUtils {
     }
 
     async getCredentialCreationTimeData(): Promise<Record<string, Record<string, string>>> {
-        const _filePath = path.join(Constants.TEMP_STORAGE_STATE_DIR_PATH, Constants.CREDENTIAL_CREATION_TIME_FILE_NAME);
+        const _filePath = path.join(Constants.TEMP_STORAGE_STATE_AUTH_DATA_DIR_PATH, Constants.CREDENTIAL_CREATION_TIME_FILE_NAME);
         await this.ensureJsonFileExists(_filePath);
         const content = await fs.readFile(_filePath, 'utf8');
         const _creationTimeData: Record<string, Record<string, string>> = JSON.parse(content);
@@ -154,7 +154,7 @@ export class FileUtils {
     }
 
     async loadFreshContentToCredsUsageStatusFile(): Promise<void> {
-        const filePath = path.join(Constants.TEMP_STORAGE_STATE_DIR_PATH, Constants.CREDENTIAL_USAGE_STATUS_FILE_NAME);
+        const filePath = path.join(Constants.TEMP_STORAGE_STATE_AUTH_DATA_DIR_PATH, Constants.CREDENTIAL_USAGE_STATUS_FILE_NAME);
         await fs.writeFile(filePath, JSON.stringify({}, null, 2));
         Logger.info(`loadFreshContentToCredsUsageStatusFile(): Cleared the old content of the file ${filePath}`);
 
@@ -172,11 +172,11 @@ export class FileUtils {
     }
 
     async getTempStorageStateJsonPath(userAliasToUse: string): Promise<string> {
-        return path.join(Constants.TEMP_STORAGE_STATE_DIR_PATH, `${userAliasToUse}.json`)
+        return path.join(Constants.TEMP_STORAGE_STATE_AUTH_DATA_DIR_PATH, `${userAliasToUse}.json`)
     }
 
     async getFreeCredentialToRunTest(): Promise<string> {
-        const filePath: string = path.join(Constants.TEMP_STORAGE_STATE_DIR_PATH, Constants.CREDENTIAL_USAGE_STATUS_FILE_NAME)
+        const filePath: string = path.join(Constants.TEMP_STORAGE_STATE_AUTH_DATA_DIR_PATH, Constants.CREDENTIAL_USAGE_STATUS_FILE_NAME)
         const defautUser: string = "not-available";
         let returnUser: string = defautUser;
 
@@ -227,7 +227,7 @@ export class FileUtils {
     }
 
     async releaseBeingUsedCredential(userAlias: string): Promise<void> {
-        const filePath: string = path.join(Constants.TEMP_STORAGE_STATE_DIR_PATH, Constants.CREDENTIAL_USAGE_STATUS_FILE_NAME);
+        const filePath: string = path.join(Constants.TEMP_STORAGE_STATE_AUTH_DATA_DIR_PATH, Constants.CREDENTIAL_USAGE_STATUS_FILE_NAME);
         const release = await lock(filePath, retryOptionsForFileLock);
         try {
             const content = await fs.readFile(filePath, 'utf8');

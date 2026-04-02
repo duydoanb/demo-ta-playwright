@@ -1,7 +1,7 @@
 ﻿# Project Summary: demo-ta-playwright
 
 ## Purpose
-Playwright-based UI automation framework with Page Object Model, data-driven tests, fixtures that mimic TestNG lifecycle hooks, credential leasing to avoid parallel data conflicts, and CI execution with optional test sharding and report merging. Includes product-detail workflows like review submission and validation.
+Playwright-based UI automation framework with Page Object Model, data-driven tests, fixtures that mimic TestNG lifecycle hooks, credential leasing to avoid parallel data conflicts, and CI execution with optional test sharding and report merging. Includes product-detail workflows, back-to-top UI checks, and thumbnail-action validation. Uses Playwright CLI (headed) for selector discovery.
 
 ## Tech Stack
 - Playwright Test (`@playwright/test`)
@@ -9,6 +9,7 @@ Playwright-based UI automation framework with Page Object Model, data-driven tes
 - dotenv for environment loading
 - Allure reporting via `allure-playwright`
 - Credential leasing with `proper-lockfile`
+- Playwright CLI (via `npx --yes --package @playwright/cli playwright-cli`) for UI inspection
 
 ## Environment and Secrets
 - `.env` is loaded in `playwright.config.ts` with `dotenv.config()`.
@@ -58,9 +59,10 @@ Test-class setup/teardown helper:
 Folder: `pages/`
 
 - `basePage.ts`: common navigation, menu, cookies/banner dismissal.
+- `basePage.ts` also includes back-to-top helpers and scroll utilities (e.g., scrollByAmount, scrollToBottom).
 - `homePage.ts`: login link handling.
 - `loginPage.ts`: login action using `Constants.VALID_USERNAME/PASSWORD`.
-- `productPage.ts`: sorting, view mode, price parsing, add-to-cart.
+- `productPage.ts`: sorting, view mode, price parsing, add-to-cart, product thumbnail action checks.
 - `myCartPage.ts`: proceed-to-checkout with retry/reload.
 - `checkoutPage.ts`: billing form and payment selection.
 - `orderStatusPage.ts`: order confirmation validations.
@@ -72,7 +74,7 @@ Folder: `data-objects/`
 
 - `billingInfo.ts`: data model for checkout inputs.
 - `credential.ts`: credential DTO for login/storage state.
-- `dataEnums.ts`: `PaymentMethod`, `ProductSortMode`, `MenuTab`.
+- `dataEnums.ts`: `PaymentMethod`, `ProductSortMode`, `MenuTab`, `ScrollDirection`.
 - `dataEnums.ts` also contains product view/department/show-limit enums and `CredentialUsageStatus`.
 - `productData.ts`: product title/price/quantity with total-cost helpers.
 
@@ -104,9 +106,17 @@ Folder: `tests/`
 - `products/TC_10.spec.ts`:
   - product review submission and verification from a random product details page
   - data-driven via `tests/products/testData.json`
+- `products/TC_13.spec.ts`:
+  - validates hover action thumbnails on product cards (details / add-to-cart / wishlist)
 - `orders/TC_05.spec.ts`:
   - order history validation
   - uses credential leasing + storageState
+- `orders/TC_11.spec.ts`:
+  - verifies order list pagination and descending order IDs
+- `orders/TC_12.spec.ts`:
+  - verifies back-to-top behavior across main menu pages (data-driven style)
+- `login/TC_14.spec.ts`:
+  - login feature validations (new login-focused suite)
 - `seed.spec.ts`: empty placeholder test file (currently no content).
 
 ## CI/CD

@@ -3,6 +3,7 @@ import { BasePage } from './basePage';
 import { ProductShowLimit, ProductSortMode, ProductViewMode } from '../data-objects/dataEnums';
 import { DataUtils } from '../utils/utilities';
 import { Logger } from '../utils/logger';
+import { Constants } from '../utils/constants';
 
 export class ProductPage extends BasePage {
     private readonly gridViewModeButton: Locator;
@@ -26,6 +27,12 @@ export class ProductPage extends BasePage {
     private readonly openDetailsPageThumbnailByProductIndex: (index: number | string) => Locator;
     private readonly addToCartThumbnailByProductIndex: (index: number | string) => Locator;
     private readonly addToWishListThumbnailByProductIndex: (index: number | string) => Locator;
+    private readonly searchTextBox: Locator;
+    private readonly searchSubmitButton: Locator;
+    private readonly searchResultsTitle: Locator;
+    private readonly searchResultsProductTitle: Locator;
+    private readonly productDetailsHeading: Locator;
+    private readonly noProductsFoundHeading: Locator;
 
 
     constructor(page: Page) {
@@ -49,6 +56,13 @@ export class ProductPage extends BasePage {
         this.openDetailsPageThumbnailByProductIndex = (_index: number | string): Locator => this.productThumbnailByIndex(_index).locator("span.show-quickly");
         this.addToCartThumbnailByProductIndex = (_index: number | string): Locator => this.productThumbnailByIndex(_index).locator("a.add_to_cart_button");
         this.addToWishListThumbnailByProductIndex = (_index: number | string): Locator => this.productThumbnailByIndex(_index).locator("a.add_to_wishlist");
+
+        this.searchTextBox = this.page.getByRole('search').first().getByRole('textbox', { name: "Search input" })
+        this.searchSubmitButton = this.page.getByRole('search').first().locator("button, input[type='submit']");
+        this.searchResultsTitle = page.getByRole('heading', { level: 1, name: /Search results for/i });
+        this.searchResultsProductTitle = page.locator("h2.product-title a, h2.woocommerce-loop-product__title");
+        this.productDetailsHeading = page.locator("h1");
+        this.noProductsFoundHeading = page.getByRole('heading', { level: 2, name: 'No products were found' });
     }
 
     async waitForProductsResultsToLoad(timeout: number = 10000): Promise<void> {
@@ -185,6 +199,58 @@ export class ProductPage extends BasePage {
         for (let idx = 0; idx < await this.dynamicProductCard.count(); idx++) {
             await this.verifyProductActionThumbnailsAndTheirPurpose(idx);
         }
+    }
+
+    async searchProduct(query: string, submitMethod: 'enter' | 'button' = 'enter'): Promise<void> {
+        await expect(this.searchTextBox).toBeVisible();
+        await this.searchTextBox.fill(query);
+        if (submitMethod === 'button') {
+            await expect(this.searchSubmitButton).toBeVisible();
+            await this.searchSubmitButton.click();
+        } else {
+            await this.searchTextBox.press('Enter');
+        }
+        await this.page.waitForLoadState('networkidle');
+    }
+
+    async getSearchResultsTitles(): Promise<string[]> {
+        const titles = await this.searchResultsProductTitle.allTextContents();
+        return titles.map(t => t.trim()).filter(Boolean);
+    }
+
+    async verifySearchResultsPageFor(query: string): Promise<void> {
+        await expect(this.searchResultsTitle).toContainText("Search results for");
+        await expect(this.searchResultsTitle).toContainText(`“${query}”`);
+        const queryParamInUrl = new URLSearchParams({ s: query });
+        Logger.info(`Checking that the current URL contains the query string: [${queryParamInUrl.toString()}]`)
+        await expect(this.page.url().includes(queryParamInUrl.toString())).toStrictEqual(true);
+    }
+
+    async verifyProductDetailsPageFor(productName: string): Promise<void> {
+        await expect(this.productDetailsHeading.first()).toHaveText(productName);
+        await expect(this.page).toHaveURL(/\/product\//);
+        await expect(this.page.url()).toStrictEqual(`${Constants.BASE_URL}/product/${(await this.productDetailsHeading.first().innerText()).toLowerCase()}/`)
+    }
+
+    async verifySearchResultsContain(productNames: string[]): Promise<void> {
+        const titles = await this.getSearchResultsTitles();
+        for (const name of productNames) {
+            expect(titles).toContain(name);
+        }
+    }
+
+    async verifySearchResultsTitlesEqual(expectedTitles: string[]): Promise<void> {
+        const titles = await this.getSearchResultsTitles();
+        expect(titles).toEqual(expectedTitles);
+    }
+
+    async verifySearchResultsNotEmpty(): Promise<void> {
+        const titles = await this.getSearchResultsTitles();
+        expect(titles.length).toBeGreaterThan(0);
+    }
+
+    async verifyNoProductsFound(): Promise<void> {
+        await expect(this.noProductsFoundHeading).toBeVisible();
     }
 
 }

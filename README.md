@@ -9,7 +9,12 @@ This project follows a conventional Playwright framework structure with:
 - Page Object Model (POM) under `pages/`
 - Test fixtures and lifecycle hooks under `fixtures/`
 - Data-driven tests using `testData.json` files in each test module
-- Product details workflows including review submission/verification (TC 10)
+- UI inspection with Playwright CLI for selector discovery
+- Automated workflows:
+  1. Authentication
+  2. Order purchasing
+  3. Product details (review submission/verification)
+  4. Visual behaviors checks
 - Auth storage state per credential, plus a credential pool to avoid parallel data conflicts
 - Multi-reporter output: HTML, List, JUnit XML, Allure, and blob (for sharded CI)
 - CI execution via GitHub Actions workflows in `.github/workflows/`
@@ -28,12 +33,14 @@ This project follows a conventional Playwright framework structure with:
 .
 |-- fixtures/                 # Custom test fixtures + global setup/teardown
 |-- pages/                    # Page objects
+|-- skills/                   # Local AI-agent skills
 |-- tests/                    # Test specs grouped by feature
-|   |-- purchase/
+|   |-- login/
 |   |-- products/
 |   |-- orders/
+|   |-- purchase/
 |   `-- test-setup/           # Auth/storage-state setup
-|-- data-objects/             # DTOs / enums used by tests (e.g., ProductData)
+|-- data-objects/             # DTOs / enums used by tests
 |-- utils/                    # Test utilities and data loaders
 |-- .temp-storage-state-data/ # Auth storage + credential usage file
 |-- playwright.config.ts      # Playwright configuration
@@ -44,6 +51,7 @@ This project follows a conventional Playwright framework structure with:
 
 - Node.js 20+ (required by package.json engines)
 - npm 9+
+- Optional: Playwright CLI (via `npx --yes --package @playwright/cli playwright-cli`)
 
 ## Installation
 
@@ -86,6 +94,12 @@ Run a specific spec file:
 npx playwright test tests/purchase/TC_01.spec.ts
 ```
 
+Run a folder of specs:
+
+```bash
+npx playwright test tests/products
+```
+
 Run tests by title pattern:
 
 ```bash
@@ -96,19 +110,6 @@ Run on a specific project/browser:
 
 ```bash
 npx playwright test --project=chromium
-```
-
-Run a shard locally (when `USE_TEST_SHARDING=true`):
-
-```bash
-set USE_TEST_SHARDING=true
-npx playwright test --shard=1/4
-```
-
-Run in headed mode:
-
-```bash
-npx playwright test --headed
 ```
 
 ## Reporting
@@ -171,6 +172,15 @@ Run with debug mode:
 
 ```bash
 npx playwright test --debug
+```
+
+## UI Inspection (Playwright CLI)
+
+Use Playwright CLI in headed mode to discover selectors:
+
+```bash
+npx --yes --package @playwright/cli playwright-cli open https://demo.testarchitect.com/shop --headed
+npx --yes --package @playwright/cli playwright-cli snapshot
 ```
 
 Open trace for failed tests:

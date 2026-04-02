@@ -19,5 +19,47 @@
             "reviewRating": 5,
             "reviewText": "Excellent product! Highly recommended."
         }
+    ],
+    "TC 15A: Verify user can search for product successfully": [
+        {
+            "setNo": "dataset #1",
+            "query": "AirPods",
+            "submitType": "button",
+            "expectedPage": "details",
+            "expectedProduct": "AirPods"
+        },
+        {
+            "setNo": "dataset #2",
+            "query": "Air",
+            "submitType": "enter",
+            "expectedPage": "results",
+            "expectedProducts": ["AirPods", "iPad Air 2"]
+        },
+        {
+            "setNo": "dataset #3",
+            "query": "airpods",
+            "submitType": "enter",
+            "expectedPage": "details",
+            "expectedProduct": "AirPods"
+        },
+        {
+            "setNo": "dataset #4",
+            "query": "Air",
+            "submitType": "enter",
+            "expectedPage": "results"
+        },
+        {
+            "setNo": "dataset #5",
+            "query": "Air",
+            "submitType": "button",
+            "expectedPage": "results"
+        },
+        {
+            "setNo": "dataset #6",
+            "query": "Drone",
+            "submitType": "enter",
+            "expectedPage": "results",
+            "expectedProducts": ["DJI Phantom 4 Camera Drone", "DJI Mavic Pro Camera Drone"]
+        }
     ]
 }

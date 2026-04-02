@@ -116,40 +116,52 @@ export const test = baseTest.extend<MyFixtures>({
         await use(data);
     },
     pageWithPreparedCred: async ({ browser }, use, testInfo) => {
-        Constants.SET_CURRENT_STEP_CONTEXT(testInfo);
         const fileUtils = new FileUtils();
         const userAliasToUse: string = await fileUtils.getFreeCredentialToRunTest();
+        let context: BrowserContext | null = null;
+        let page: Page | null = null;
+        try {
+            testInfo.annotations.push({ type: 'userAlias', description: String(userAliasToUse) });
+            Constants.SET_CURRENT_STEP_CONTEXT(testInfo);
 
-        testInfo.annotations.push({ type: 'userAlias', description: String(userAliasToUse) });
-        Constants.SET_CURRENT_STEP_CONTEXT(testInfo);
-
-        Logger.info(`Using credential alias: ${userAliasToUse}`);
-        const context: BrowserContext = await browser.newContext({ storageState: await fileUtils.getTempStorageStateJsonPath(userAliasToUse) });
-        const page: Page = await context.newPage();
-        // Test runs here
-        await use(page);
-        // After each test (method)
-        await page.close();
-        await context.close();
-        await fileUtils.releaseBeingUsedCredential(userAliasToUse);
+            Logger.info(`Using credential alias: ${userAliasToUse}`);
+            context = await browser.newContext({ storageState: await fileUtils.getTempStorageStateJsonPath(userAliasToUse) });
+            page = await context.newPage();
+            // Test runs here
+            await use(page);
+        } catch (error) {
+            throw error;
+        } finally {
+            // Must always execute after each test (method)
+            // Must release the cred
+            await fileUtils.releaseBeingUsedCredential(userAliasToUse);
+            if (page) await page.close();
+            if (context) await context.close();
+        }
     },
     contextWithPreparedCred: async ({ browser }, use, testInfo) => {
-        Constants.SET_CURRENT_STEP_CONTEXT(testInfo);
         const fileUtils = new FileUtils();
         const userAliasToUse: string = await fileUtils.getFreeCredentialToRunTest();
+        let context: BrowserContext | null = null;
+        let page: Page | null = null;
+        try {
+            testInfo.annotations.push({ type: 'userAlias', description: String(userAliasToUse) });
+            Constants.SET_CURRENT_STEP_CONTEXT(testInfo);
 
-        testInfo.annotations.push({ type: 'userAlias', description: String(userAliasToUse) });
-        Constants.SET_CURRENT_STEP_CONTEXT(testInfo);
-
-        Logger.info(`Using credential alias: ${userAliasToUse}`);
-        const context: BrowserContext = await browser.newContext({ storageState: await fileUtils.getTempStorageStateJsonPath(userAliasToUse) });
-        const page: Page = await context.newPage();
-        // Test runs here
-        await use(context);
-        // After each test (method)
-        await page.close();
-        await context.close();
-        await fileUtils.releaseBeingUsedCredential(userAliasToUse);
+            Logger.info(`Using credential alias: ${userAliasToUse}`);
+            context = await browser.newContext({ storageState: await fileUtils.getTempStorageStateJsonPath(userAliasToUse) });
+            page = await context.newPage();
+            // Test runs here
+            await use(context);
+        } catch (error) {
+            throw error;
+        } finally {
+            // After each test (method)
+            // Must release the cred
+            await fileUtils.releaseBeingUsedCredential(userAliasToUse);
+            if (page) await page.close();
+            if (context) await context.close();
+        }
     },
 
     // browsers with prepared auth data
