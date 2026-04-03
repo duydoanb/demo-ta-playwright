@@ -228,7 +228,7 @@ export class ProductPage extends BasePage {
 
     async verifyProductDetailsPageFor(productName: string): Promise<void> {
         await expect(this.productDetailsHeading.first()).toHaveText(productName);
-        await expect(this.page).toHaveURL(/\/product\//);
+        await expect(this.page).toHaveURL(/.*product.*/);
         await expect(this.page.url()).toStrictEqual(`${Constants.BASE_URL}/product/${(await this.productDetailsHeading.first().innerText()).toLowerCase()}/`)
     }
 
