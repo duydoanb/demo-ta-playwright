@@ -31,8 +31,8 @@ export default defineConfig({
   /* Set retry */
   retries: isCICD ? 4 : (inDebugMode) ? 0 : 2,
   /* Opt out of parallel tests on CI. */
-  workers: isCICD ? ((process.env.USE_TEST_SHARDING === 'true') ? 1 : 5) : 3,
-  maxFailures: isCICD ? 5 : undefined,
+  workers: isCICD ? ((process.env.USE_TEST_SHARDING === 'true') ? 1 : 3) : 3,
+  maxFailures: isCICD ? 10 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: isCICD
     ? [['blob'], ['html'], ['allure-playwright', { detail: true, resultsDir: `allure-results/${process.env.TEST_RUN_ID}/`, suiteTitle: true }]]
