@@ -53,7 +53,9 @@ metadata:
    - Summarize added/modified tests, how to run them, and expected outcomes.
 
 ## Test Design Guidelines
+- When using this skill, make sure to read the file `.agent\PROJECT_SUMMARY.md` first if you have foggoten its content
 - When inspecting UI, use `playwright-cli open <url> --headed` and capture a snapshot before selecting locators.
+- When inspecting UI, always login using the provided credential unless the user ask to not to do that intentionally.
 - DURING INSPECTING THE SITE: Login the site to get correct behaviours, BUT DON'T add codes to login in the test script as that is already handled.
 
 - Always use the page-object-model design patterns to implement new tests.
@@ -78,7 +80,32 @@ metadata:
 - Prefer prepared auth fixtures (`pageWithPreparedCred`) unless validating login flow or explicitly asked to log in.
 - Credentials and fixtures are already set up, do not invent new ones unless the user asks.
 - For tests that add products to cart or purchase items, empty the cart before each test.
-- For multiple datasets: use data-driven `for (...)` test generation (see `tests/purchase/TC_01.spec.ts`, `tests/products/TC_04.spec.ts`).
+- For tests with multiple datasets:
+   1. Name each test as `${testCaseTitle} - ${testData.setNo}`
+   2. Initiate tests using `for (...)` loop like tests in `tests/purchase/TC_01.spec.ts`, `tests/products/TC_04.spec.ts`
+   3. Add test data into the file `testData.json` located at the same level, same dir as the test case file
+      3.1. test data for a test in the `testData.json` MUST FOLLOW THIS STRUCTURE:
+            ```
+            "TC XX: ${Example test case name}": [
+            {
+                  "setNo": "dataset #1",
+                  "data 1": "value 1",
+                  "data 2": "value 2",
+                  "data 3": "value 3"
+            },
+            {
+                  "setNo": "dataset #2",
+                  "data 1": "value 1",
+                  "data 2": "value 2",
+                  "data 3": "value 3"
+            },
+            {
+                  "setNo": "dataset #3",
+                  "data 1": "value 1",
+                  "data 2": "value 2",
+                  "data 3": "value 3"
+            },
+         ],```
 - For assertions: 
    - *ALWAYS* create `verify/expect` methods in Page Objects to do assertions, validation
    - I don't wan't to see assertion method at the test file level

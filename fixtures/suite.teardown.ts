@@ -1,7 +1,10 @@
+import { Logger } from '../utils/logger';
+
 async function globalTeardown() {
-    console.log('[AFTER SUITE]: START...');
+    console.log("\n\n-----------------------------------------------------------------------------------------------------------------------------------------------");
+    Logger.info('[AFTER SUITE]: START...');
     // AfterSuite logic here - Executed only once per run, after all tests
-    console.log('[AFTER SUITE]: END...');
+    Logger.info('[AFTER SUITE]: END...');
 }
 
 export default globalTeardown;

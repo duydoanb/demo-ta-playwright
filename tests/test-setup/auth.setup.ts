@@ -14,7 +14,7 @@ setup(`Authenticate once for all credentials`, async ({ browser, page }, testInf
     let stepNum = 1;
 
     const fileUtils = new FileUtils();
-    const credsCreationTimeFilePath = path.join(Constants.TEMP_STORAGE_STATE_DIR_PATH, Constants.CREDENTIAL_CREATION_TIME_FILE_NAME);
+    const credsCreationTimeFilePath = path.join(Constants.TEMP_STORAGE_STATE_AUTH_DATA_DIR_PATH, Constants.CREDENTIAL_CREATION_TIME_FILE_NAME);
 
     for (const credData of Constants.ALL_VALID_CREDENTIALS) {
         const authDataFilePath = path.join(__dirname, `../../${Constants.TEMP_LOGIN_STATE_FILE_PATH(credData.alias)}`);
@@ -86,7 +86,7 @@ setup(`Authenticate once for all credentials`, async ({ browser, page }, testInf
 });
 
 setup("Prepare JSON file for credentials usages status", async ({ }) => {
-    const credsUsageDataFilePath = path.join(Constants.TEMP_STORAGE_STATE_DIR_PATH, Constants.CREDENTIAL_USAGE_STATUS_FILE_NAME);
+    const credsUsageDataFilePath = path.join(Constants.TEMP_STORAGE_STATE_AUTH_DATA_DIR_PATH, Constants.CREDENTIAL_USAGE_STATUS_FILE_NAME);
     const fileUtils = new FileUtils();
     await fileUtils.ensureJsonFileExists(credsUsageDataFilePath);
     await fileUtils.loadFreshContentToCredsUsageStatusFile();

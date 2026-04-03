@@ -34,4 +34,6 @@ Github action integration --> DONE
 
 Test sharding --> DONE
 
+Integrate agent skills --> DONE
+
 Jenkins integration --> ING
