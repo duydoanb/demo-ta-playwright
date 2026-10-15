@@ -1,5 +1,6 @@
 name: Playwright CI/CD Tests
 on:
+  workflow_dispatch: 
   push:
     branches: [main-unused, develop-unused]
   pull_request:
